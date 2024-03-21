@@ -12,7 +12,7 @@ public class MyObservedEntity implements Observed {
 		obsList = new ArrayList<Observer>();
 	}
 
-	public void register(Observer obs) {
+	public synchronized void register(Observer obs) {
 		obsList.add(obs);
 	}
 
