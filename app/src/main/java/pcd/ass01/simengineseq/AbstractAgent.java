@@ -31,7 +31,7 @@ public abstract class AbstractAgent {
 	/**
 	 * This method is called at each step of the simulation
 	 * 
-	 * @param dt - logical time step
+	 * @param dt - logical time step (tempo trascorso dall'ultimo step)
 	 */
 	abstract public void step(int dt);
 	

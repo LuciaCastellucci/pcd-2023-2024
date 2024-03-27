@@ -5,7 +5,9 @@ import java.util.List;
 
 /**
  * Base class for defining concrete simulations
- *  
+ * Cuore dell'engine
+ * Implementa il pattern Observer poichè al suo interno ha dei listener (vedi metodi notifyReset e notifyNewStep)
+ * Tale engine va reso concorrente
  */
 public abstract class AbstractSimulation {
 
@@ -51,6 +53,8 @@ public abstract class AbstractSimulation {
 	/**
 	 * Method running the simulation for a number of steps,
 	 * using a sequential approach
+	 *
+	 * Implementazione 1:1 rispetto allo pseudocodice
 	 * 
 	 * @param numSteps
 	 */
