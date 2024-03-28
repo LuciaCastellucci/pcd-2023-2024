@@ -16,7 +16,9 @@ public class Controller implements InputListener {
 		this.set = set;
 		this.view = view;
 	}
-	
+
+	// Architettura Master-Worker con Latch Monitor
+	// Tipo particolare di archiettura: i tjread non devnoo essere riiutilizzati
 	public synchronized void started(Complex c0, double diam){
 		int nWorkers = Runtime.getRuntime().availableProcessors() + 1;
 		synch = new TaskCompletionLatch(nWorkers);

@@ -2,6 +2,7 @@ package pcd.lab05.monitors.ex_latch;
 
 public class ThreadA extends Thread {
 
+	// Master
 	private Latch latch;
 	
 	public ThreadA(String name, Latch latch) {

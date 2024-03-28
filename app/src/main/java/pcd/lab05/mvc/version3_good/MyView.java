@@ -22,7 +22,7 @@ class MyView extends JFrame implements ActionListener, ModelObserver {
 		
 		this.controller = controller;
 		
-		setSize(400, 60);
+		setSize(400, 100);
 		setResizable(false);
 		
 		JButton button1 = new JButton("Event #1");

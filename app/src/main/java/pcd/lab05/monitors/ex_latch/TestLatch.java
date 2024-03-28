@@ -11,8 +11,10 @@ public class TestLatch {
 		int nThreadB = 10;
 		
 		/* this latch is not working */
-		Latch latch = new FakeLatch();
-		
+		//Latch latch = new FakeLatch();
+		Latch latch = new RealLatch(nThreadB);
+
+		// Architettura Master-Worker
 		List<ThreadA> threadsAlist = new ArrayList<ThreadA>();
 		for (int i = 0; i < nThreadA; i++) {
 			threadsAlist.add(new ThreadA("ThreadA-" + i, latch));

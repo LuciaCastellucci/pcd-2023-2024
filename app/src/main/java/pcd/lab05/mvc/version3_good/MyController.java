@@ -7,7 +7,10 @@ public class MyController {
 	public MyController(MyModel model){
 		this.model = model;
 	}
+
 	public void processEvent(String event) {
+		// Questa versione è solo a scopo scolastico.
+		// La procedura corretta prevederebbe di individuare un eventuale componente attivo per modellarlo ad hoc
 		try {
 			new Thread(() -> {
 				try {

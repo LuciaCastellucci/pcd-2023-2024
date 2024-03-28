@@ -4,6 +4,7 @@ import java.util.Random;
 
 public class ThreadB extends Thread {
 
+	// Worker
 	private Latch latch;
 	
 	public ThreadB(String name, Latch latch) {
