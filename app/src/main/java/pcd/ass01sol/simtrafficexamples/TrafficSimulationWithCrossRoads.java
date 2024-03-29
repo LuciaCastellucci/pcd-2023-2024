@@ -1,15 +1,10 @@
-package pcd.ass01.simtrafficexamples;
+package pcd.ass01sol.simtrafficexamples;
+
+import pcd.ass01.simtrafficbase.TrafficLight.TrafficLightState;
+import pcd.ass01sol.simengineseq.AbstractSimulation;
+import pcd.ass01sol.simtrafficbase.*;
 
 import java.util.Random;
-
-import pcd.ass01.simengineseq.AbstractSimulation;
-import pcd.ass01.simtrafficbase.CarAgent;
-import pcd.ass01.simtrafficbase.CarAgentExtended;
-import pcd.ass01.simtrafficbase.P2d;
-import pcd.ass01.simtrafficbase.Road;
-import pcd.ass01.simtrafficbase.RoadsEnv;
-import pcd.ass01.simtrafficbase.TrafficLight;
-import pcd.ass01.simtrafficbase.TrafficLight.TrafficLightState;
 
 public class TrafficSimulationWithCrossRoads extends AbstractSimulation {
 
@@ -26,7 +21,7 @@ public class TrafficSimulationWithCrossRoads extends AbstractSimulation {
 		RoadsEnv env = new RoadsEnv();
 		this.setupEnvironment(env);
 				
-		TrafficLight tl1 = env.createTrafficLight(new P2d(740,300), TrafficLight.TrafficLightState.GREEN, 75, 25, 100);
+		TrafficLight tl1 = env.createTrafficLight(new P2d(740,300), TrafficLightState.GREEN, 75, 25, 100);
 		
 		Road r1 = env.createRoad(new P2d(0,300), new P2d(1500,300));
 		r1.addTrafficLight(tl1, 740);
@@ -36,7 +31,7 @@ public class TrafficSimulationWithCrossRoads extends AbstractSimulation {
 		CarAgent car2 = new CarAgentExtended("car-2", env, r1, 100, 0.1, 0.3, 5);
 		this.addAgent(car2);		
 		
-		TrafficLight tl2 = env.createTrafficLight(new P2d(750,290),  TrafficLight.TrafficLightState.RED, 75, 25, 100);
+		TrafficLight tl2 = env.createTrafficLight(new P2d(750,290),  TrafficLightState.RED, 75, 25, 100);
 
 		Road r2 = env.createRoad(new P2d(750,0), new P2d(750,600));
 		r2.addTrafficLight(tl2, 290);

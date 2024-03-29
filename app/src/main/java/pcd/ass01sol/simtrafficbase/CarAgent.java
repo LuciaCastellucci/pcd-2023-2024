@@ -1,8 +1,10 @@
-package pcd.ass01.simtrafficbase;
+package pcd.ass01sol.simtrafficbase;
+
+import pcd.ass01sol.simengineseq.AbstractAgent;
+import pcd.ass01sol.simengineseq.AbstractEnvironment;
+import pcd.ass01sol.simengineseq.Action;
 
 import java.util.Optional;
-
-import pcd.ass01.simengineseq.*;
 
 /**
  * 
@@ -22,11 +24,11 @@ public abstract class CarAgent extends AbstractAgent {
 	protected Optional<Action> selectedAction;
 	
 	
-	public CarAgent(String id, RoadsEnv env, Road road, 
-			double initialPos, 
-			double acc, 
-			double dec,
-			double vmax) {
+	public CarAgent(String id, RoadsEnv env, Road road,
+                    double initialPos,
+                    double acc,
+                    double dec,
+                    double vmax) {
 		super(id);
 		this.acceleration = acc;
 		this.deceleration = dec;
@@ -43,8 +45,8 @@ public abstract class CarAgent extends AbstractAgent {
 
 		/* sense */
 
-		AbstractEnvironment env = this.getEnv();		
-		currentPercept = (CarPercept) env.getCurrentPercepts(getId());			
+		AbstractEnvironment env = this.getEnv();
+		currentPercept = (CarPercept) env.getCurrentPercepts(getId());
 
 		/* decide */
 		

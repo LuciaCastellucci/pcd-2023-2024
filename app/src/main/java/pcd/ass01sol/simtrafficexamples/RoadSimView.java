@@ -1,22 +1,13 @@
-package pcd.ass01.simtrafficexamples;
+package pcd.ass01sol.simtrafficexamples;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import pcd.ass01sol.simengineseq.AbstractAgent;
+import pcd.ass01sol.simengineseq.AbstractEnvironment;
+import pcd.ass01sol.simengineseq.SimulationListener;
+import pcd.ass01sol.simtrafficbase.*;
 
-import pcd.ass01.simengineseq.AbstractAgent;
-import pcd.ass01.simengineseq.AbstractEnvironment;
-import pcd.ass01.simengineseq.SimulationListener;
-import pcd.ass01.simtrafficbase.CarAgentInfo;
-import pcd.ass01.simtrafficbase.Road;
-import pcd.ass01.simtrafficbase.RoadsEnv;
-import pcd.ass01.simtrafficbase.TrafficLight;
-import pcd.ass01.simtrafficbase.V2d;
-
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 public class RoadSimView extends JFrame implements SimulationListener {
 
@@ -106,7 +97,7 @@ public class RoadSimView extends JFrame implements SimulationListener {
 			}
   	   }
 	
-	   public void update(List<Road> roads, 
+	   public void update(List<Road> roads,
 			   			  List<CarAgentInfo> cars,
 			   			List<TrafficLight> sems) {
 		   this.roads = roads;
