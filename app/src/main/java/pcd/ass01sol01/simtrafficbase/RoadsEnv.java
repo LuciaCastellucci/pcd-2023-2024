@@ -1,8 +1,8 @@
 package pcd.ass01sol01.simtrafficbase;
 
-import pcd.ass01.simengineseq.AbstractEnvironment;
-import pcd.ass01.simengineseq.Action;
-import pcd.ass01.simengineseq.Percept;
+import pcd.ass01sol01.simengineseq.AbstractEnvironment;
+import pcd.ass01sol01.simengineseq.Action;
+import pcd.ass01sol01.simengineseq.Percept;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,18 +68,18 @@ public class RoadsEnv extends AbstractEnvironment {
 
 	@Override
 	public Percept getCurrentPercepts(String agentId) {
-		try {
-			mutex.lock();
+		//try {
+			//mutex.lock();
 			CarAgentInfo carInfo = registeredCars.get(agentId);
 			double pos = carInfo.getPos();
 			Road road = carInfo.getRoad();
 			Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road,pos, CAR_DETECTION_RANGE);
 			Optional<TrafficLightInfo> nearestSem = getNearestSemaphoreInFront(road,pos, SEM_DETECTION_RANGE);
 			return new CarPercept(pos, nearestCar, nearestSem);
-		}
-		finally {
-			mutex.unlock();
-		}
+		//}
+		//finally {
+			//mutex.unlock();
+		//}
 	}
 
 	private Optional<CarAgentInfo> getNearestCarInFront(Road road, double carPos, double range){

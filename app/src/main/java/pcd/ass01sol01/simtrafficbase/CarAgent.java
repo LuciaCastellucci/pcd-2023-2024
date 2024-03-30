@@ -1,8 +1,8 @@
 package pcd.ass01sol01.simtrafficbase;
 
-import pcd.ass01.simengineseq.AbstractAgent;
-import pcd.ass01.simengineseq.AbstractEnvironment;
-import pcd.ass01.simengineseq.Action;
+import pcd.ass01sol01.simengineseq.AbstractAgent;
+import pcd.ass01sol01.simengineseq.AbstractEnvironment;
+import pcd.ass01sol01.simengineseq.Action;
 
 import java.util.Optional;
 

@@ -2,6 +2,10 @@ package pcd.ass01sol01.simengineseq;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Base class for defining concrete simulations
@@ -36,11 +40,14 @@ public abstract class AbstractSimulation {
 	private long endWallTime;
 	private long averageTimePerStep;
 
+	private Semaphore stepDone;
+
 
 	protected AbstractSimulation() {
 		agents = new ArrayList<AbstractAgent>();
 		listeners = new ArrayList<SimulationListener>();
 		toBeInSyncWithWallTime = false;
+		stepDone = new Semaphore(1, true);
 	}
 	
 	/**
@@ -74,42 +81,45 @@ public abstract class AbstractSimulation {
 		
 		long timePerStep = 0;
 		int nSteps = 0;
-		
-		while (nSteps < numSteps) {
 
+		int nThread = Runtime.getRuntime().availableProcessors();
+		CyclicBarrier barrier = new CyclicBarrier(nThread);
+
+		while (nSteps < numSteps) {
 			currentWallTime = System.currentTimeMillis();
-		
+
 			/* make a step */
-			
+
 			env.step(dt);
 
 			List<List<AbstractAgent>> parts = new ArrayList<List<AbstractAgent>>();
-			int nThread = Runtime.getRuntime().availableProcessors();
 			int partsSize = agents.size() / nThread;
+			if (partsSize == 0) {
+				nThread = agents.size();
+				partsSize = 1;
+			}
 			for (int i = 0; i < agents.size(); i += partsSize) {
 				parts.add(new ArrayList<AbstractAgent>(
 						agents.subList(i, Math.min(agents.size(), i + partsSize)))
 				);
 			}
-			
+
+			//boolean lastStep = nSteps == numSteps - 1;
+			//int c = 0;
 			for(List<AbstractAgent> part : parts) {
-				Worker worker = new Worker(part, dt);
+				Worker worker = new Worker(part, dt, barrier);
+				//c++;
+				//Worker worker = new Worker("Step " + nSteps + " Worker " + c, part, dt, barrier, numSteps);
 				worker.start();
 			}
 
-			/*
-			for (var agent: agents) {
-				agent.step(dt);
-			}
-			*/
-
 			t += dt;
-			
+
 			notifyNewStep(t, agents, env);
 
-			nSteps++;			
+			nSteps++;
 			timePerStep += System.currentTimeMillis() - currentWallTime;
-			
+
 			if (toBeInSyncWithWallTime) {
 				syncWithWallTime();
 			}

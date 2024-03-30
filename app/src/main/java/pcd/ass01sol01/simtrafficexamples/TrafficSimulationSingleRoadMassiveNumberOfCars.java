@@ -1,7 +1,7 @@
 package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01.simengineseq.AbstractSimulation;
-import pcd.ass01.simtrafficbase.*;
+import pcd.ass01sol01.simengineseq.AbstractSimulation;
+import pcd.ass01sol01.simtrafficbase.*;
 
 public class TrafficSimulationSingleRoadMassiveNumberOfCars extends AbstractSimulation {
 

@@ -1,6 +1,6 @@
 package pcd.ass01sol01.simtrafficbase;
 
-import pcd.ass01.simengineseq.Percept;
+import pcd.ass01sol01.simengineseq.Percept;
 
 import java.util.Optional;
 
