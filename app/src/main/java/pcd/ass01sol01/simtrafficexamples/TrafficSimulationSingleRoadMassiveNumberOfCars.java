@@ -1,9 +1,9 @@
-package pcd.ass01sol.simtrafficexamples;
+package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01sol.simengineseq.AbstractSimulation;
-import pcd.ass01sol.simtrafficbase.*;
+import pcd.ass01.simengineseq.AbstractSimulation;
+import pcd.ass01.simtrafficbase.*;
 
-public class TrafficSimulationSingleRoadMassiveNumberOfCars extends AbstractCarSimulation {
+public class TrafficSimulationSingleRoadMassiveNumberOfCars extends AbstractSimulation {
 
 	private int numCars;
 	
@@ -28,7 +28,7 @@ public class TrafficSimulationSingleRoadMassiveNumberOfCars extends AbstractCarS
 			double carDeceleration = 0.3; //  + gen.nextDouble()/2;
 			double carMaxSpeed = 7; // 4 + gen.nextDouble();
 						
-			CarAgent car = new CarAgentBasic(carId, env,
+			CarAgent car = new CarAgentBasic(carId, env, 
 									road,
 									initialPos, 
 									carAcceleration, 

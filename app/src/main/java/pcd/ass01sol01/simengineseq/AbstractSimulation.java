@@ -1,4 +1,4 @@
-package pcd.ass01sol.simengineseq;
+package pcd.ass01sol01.simengineseq;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,29 +12,29 @@ import java.util.List;
 public abstract class AbstractSimulation {
 
 	/* environment of the simulation */
-	protected AbstractEnvironment env;
-
+	private AbstractEnvironment env;
+	
 	/* list of the agents */
 	private List<AbstractAgent> agents;
-
+	
 	/* simulation listeners */
-	protected List<SimulationListener> listeners;
+	private List<SimulationListener> listeners;
 
 	/* logical time step */
-	protected int dt;
-
+	private int dt;
+	
 	/* initial logical time */
-	protected int t0;
+	private int t0;
 
 	/* in the case of sync with wall-time */
-	protected boolean toBeInSyncWithWallTime;
-	protected int nStepsPerSec;
-
+	private boolean toBeInSyncWithWallTime;
+	private int nStepsPerSec;
+	
 	/* for time statistics*/
-	protected long currentWallTime;
-	protected long startWallTime;
-	protected long endWallTime;
-	protected long averageTimePerStep;
+	private long currentWallTime;
+	private long startWallTime;
+	private long endWallTime;
+	private long averageTimePerStep;
 
 
 	protected AbstractSimulation() {
@@ -42,23 +42,23 @@ public abstract class AbstractSimulation {
 		listeners = new ArrayList<SimulationListener>();
 		toBeInSyncWithWallTime = false;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 * Method used to configure the simulation, specifying env and agents
-	 *
+	 * 
 	 */
 	protected abstract void setup();
-
+	
 	/**
 	 * Method running the simulation for a number of steps,
 	 * using a sequential approach
 	 *
 	 * Implementazione 1:1 rispetto allo pseudocodice
-	 *
+	 * 
 	 * @param numSteps
 	 */
-	public void run(int numSteps) {
+	public void run(int numSteps) {		
 
 		startWallTime = System.currentTimeMillis();
 
@@ -71,57 +71,57 @@ public abstract class AbstractSimulation {
 		}
 
 		this.notifyReset(t, agents, env);
-
+		
 		long timePerStep = 0;
 		int nSteps = 0;
-
+		
 		while (nSteps < numSteps) {
 
 			currentWallTime = System.currentTimeMillis();
-
+		
 			/* make a step */
-
+			
 			env.step(dt);
 			for (var agent: agents) {
 				agent.step(dt);
 			}
 			t += dt;
-
+			
 			notifyNewStep(t, agents, env);
 
-			nSteps++;
+			nSteps++;			
 			timePerStep += System.currentTimeMillis() - currentWallTime;
-
+			
 			if (toBeInSyncWithWallTime) {
 				syncWithWallTime();
 			}
-		}
-
+		}	
+		
 		endWallTime = System.currentTimeMillis();
 		this.averageTimePerStep = timePerStep / numSteps;
-
+		
 	}
-
+	
 	public long getSimulationDuration() {
 		return endWallTime - startWallTime;
 	}
-
+	
 	public long getAverageTimePerCycle() {
 		return averageTimePerStep;
 	}
-
+	
 	/* methods for configuring the simulation */
-
+	
 	protected void setupTimings(int t0, int dt) {
 		this.dt = dt;
 		this.t0 = t0;
 	}
-
+	
 	protected void syncWithTime(int nCyclesPerSec) {
 		this.toBeInSyncWithWallTime = true;
 		this.nStepsPerSec = nCyclesPerSec;
 	}
-
+		
 	protected void setupEnvironment(AbstractEnvironment env) {
 		this.env = env;
 	}
@@ -129,13 +129,13 @@ public abstract class AbstractSimulation {
 	protected void addAgent(AbstractAgent agent) {
 		agents.add(agent);
 	}
-
+	
 	/* methods for listeners */
-
+	
 	public void addSimulationListener(SimulationListener l) {
 		this.listeners.add(l);
 	}
-
+	
 	private void notifyReset(int t0, List<AbstractAgent> agents, AbstractEnvironment env) {
 		for (var l: listeners) {
 			l.notifyInit(t0, agents, env);
@@ -149,7 +149,7 @@ public abstract class AbstractSimulation {
 	}
 
 	/* method to sync with wall time at a specified step rate */
-
+	
 	private void syncWithWallTime() {
 		try {
 			long newWallTime = System.currentTimeMillis();
@@ -158,6 +158,6 @@ public abstract class AbstractSimulation {
 			if (wallTimeDT < delay) {
 				Thread.sleep(delay - wallTimeDT);
 			}
-		} catch (Exception ex) {}
+		} catch (Exception ex) {}		
 	}
 }

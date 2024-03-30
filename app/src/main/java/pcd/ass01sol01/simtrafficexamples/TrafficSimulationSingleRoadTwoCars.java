@@ -1,14 +1,14 @@
-package pcd.ass01sol.simtrafficexamples;
+package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01sol.simengineseq.AbstractSimulation;
-import pcd.ass01sol.simtrafficbase.*;
+import pcd.ass01.simengineseq.AbstractSimulation;
+import pcd.ass01.simtrafficbase.*;
 
 /**
  * 
  * Traffic Simulation about 2 cars moving on a single road, no traffic lights
  * 
  */
-public class TrafficSimulationSingleRoadTwoCars extends AbstractCarSimulation {
+public class TrafficSimulationSingleRoadTwoCars extends AbstractSimulation {
 
 	public TrafficSimulationSingleRoadTwoCars() {
 		super();

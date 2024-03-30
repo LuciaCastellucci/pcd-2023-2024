@@ -1,8 +1,8 @@
-package pcd.ass01sol.simtrafficexamples;
+package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01sol.simtrafficbase.TrafficLight.TrafficLightState;
-import pcd.ass01sol.simengineseq.AbstractSimulation;
-import pcd.ass01sol.simtrafficbase.*;
+import pcd.ass01.simengineseq.AbstractSimulation;
+import pcd.ass01.simtrafficbase.*;
+import pcd.ass01.simtrafficbase.TrafficLight.TrafficLightState;
 
 /**
  * 

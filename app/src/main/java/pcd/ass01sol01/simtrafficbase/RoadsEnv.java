@@ -1,14 +1,13 @@
-package pcd.ass01sol.simtrafficbase;
+package pcd.ass01sol01.simtrafficbase;
 
-import pcd.ass01sol.simengineseq.AbstractEnvironment;
-import pcd.ass01sol.simengineseq.Action;
-import pcd.ass01sol.simengineseq.Percept;
+import pcd.ass01.simengineseq.AbstractEnvironment;
+import pcd.ass01.simengineseq.Action;
+import pcd.ass01.simengineseq.Percept;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -27,18 +26,14 @@ public class RoadsEnv extends AbstractEnvironment {
 	/* cars situated in the environment */	
 	private HashMap<String, CarAgentInfo> registeredCars;
 
-	//private boolean available;
 	private Lock mutex;
-	//private Condition isAvail;
 
 	public RoadsEnv() {
 		super("traffic-env");
 		registeredCars = new HashMap<>();	
 		trafficLights = new ArrayList<>();
 		roads = new ArrayList<>();
-		//available = true;
-		mutex = new ReentrantLock();
-		//isAvail = mutex.newCondition();
+		mutex =  new ReentrantLock();
 	}
 	
 	@Override
@@ -75,19 +70,14 @@ public class RoadsEnv extends AbstractEnvironment {
 	public Percept getCurrentPercepts(String agentId) {
 		try {
 			mutex.lock();
-			/*if (!available){
-				try {
-					isAvail.await();
-				} catch (InterruptedException ex){}
-			}*/
 			CarAgentInfo carInfo = registeredCars.get(agentId);
 			double pos = carInfo.getPos();
 			Road road = carInfo.getRoad();
 			Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road,pos, CAR_DETECTION_RANGE);
 			Optional<TrafficLightInfo> nearestSem = getNearestSemaphoreInFront(road,pos, SEM_DETECTION_RANGE);
-
 			return new CarPercept(pos, nearestCar, nearestSem);
-		} finally {
+		}
+		finally {
 			mutex.unlock();
 		}
 	}
@@ -141,11 +131,6 @@ public class RoadsEnv extends AbstractEnvironment {
 			}
 			default: break;
 			}
-			/*
-			available = true;
-			isAvail.signalAll();
-			 */
-
 		} finally {
 			mutex.unlock();
 		}

@@ -1,8 +1,8 @@
-package pcd.ass01sol.simtrafficbase;
+package pcd.ass01sol01.simtrafficbase;
 
-import pcd.ass01sol.simengineseq.AbstractAgent;
-import pcd.ass01sol.simengineseq.AbstractEnvironment;
-import pcd.ass01sol.simengineseq.Action;
+import pcd.ass01.simengineseq.AbstractAgent;
+import pcd.ass01.simengineseq.AbstractEnvironment;
+import pcd.ass01.simengineseq.Action;
 
 import java.util.Optional;
 
@@ -36,31 +36,30 @@ public abstract class CarAgent extends AbstractAgent {
 		env.registerNewCar(this, road, initialPos);
 	}
 
-	/*
+	/**
 	 * 
 	 * Basic behaviour of a car agent structured into a sense/decide/act structure 
-	 *
-	 * */
+	 * 
+	 */
 	public void step(int dt) {
 
-		// sense
+		/* sense */
 
-		AbstractEnvironment env = this.getEnv();
+		AbstractEnvironment env = this.getEnv();		
 		currentPercept = (CarPercept) env.getCurrentPercepts(getId());
 
-		// decide
+		/* decide */
 		
 		selectedAction = Optional.empty();
 		
 		decide(dt);
 		
-		// act
+		/* act */
 		
 		if (selectedAction.isPresent()) {
 			env.doAction(getId(), selectedAction.get());
 		}
 	}
-
 	
 	/**
 	 * 

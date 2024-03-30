@@ -1,7 +1,7 @@
-package pcd.ass01sol.simtrafficexamples;
+package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01sol.simengineseq.AbstractSimulation;
-import pcd.ass01sol.simtrafficbase.*;
+import pcd.ass01.simengineseq.AbstractSimulation;
+import pcd.ass01.simtrafficbase.*;
 
 /**
  * 
@@ -9,7 +9,7 @@ import pcd.ass01sol.simtrafficbase.*;
  * moving on a single road, no traffic lights
  * 
  */
-public class TrafficSimulationSingleRoadSeveralCars extends AbstractCarSimulation {
+public class TrafficSimulationSingleRoadSeveralCars extends AbstractSimulation {
 
 	public TrafficSimulationSingleRoadSeveralCars() {
 		super();
@@ -24,7 +24,7 @@ public class TrafficSimulationSingleRoadSeveralCars extends AbstractCarSimulatio
 		
 		Road road = env.createRoad(new P2d(0,300), new P2d(1500,300));
 
-		int nCars = 300;
+		int nCars = 30;
 
 		for (int i = 0; i < nCars; i++) {
 			
@@ -36,7 +36,7 @@ public class TrafficSimulationSingleRoadSeveralCars extends AbstractCarSimulatio
 			double carDeceleration = 0.3; //  + gen.nextDouble()/2;
 			double carMaxSpeed = 7; // 4 + gen.nextDouble();
 						
-			CarAgent car = new CarAgentBasic(carId, env,
+			CarAgent car = new CarAgentBasic(carId, env, 
 									road,
 									initialPos, 
 									carAcceleration, 

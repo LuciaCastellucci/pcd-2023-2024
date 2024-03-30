@@ -1,4 +1,4 @@
-package pcd.ass01sol.simengineseq;
+package pcd.ass01sol01.simengineseq;
 
 /**
  * 
@@ -40,7 +40,7 @@ public abstract class AbstractAgent {
 		return myId;
 	}
 	
-	public AbstractEnvironment getEnv() {
+	protected AbstractEnvironment getEnv() {
 		return this.env;
 	}
 }
