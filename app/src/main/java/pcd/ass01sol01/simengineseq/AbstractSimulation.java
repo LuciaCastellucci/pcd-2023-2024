@@ -82,9 +82,27 @@ public abstract class AbstractSimulation {
 			/* make a step */
 			
 			env.step(dt);
+
+			List<List<AbstractAgent>> parts = new ArrayList<List<AbstractAgent>>();
+			int nThread = Runtime.getRuntime().availableProcessors();
+			int partsSize = agents.size() / nThread;
+			for (int i = 0; i < agents.size(); i += partsSize) {
+				parts.add(new ArrayList<AbstractAgent>(
+						agents.subList(i, Math.min(agents.size(), i + partsSize)))
+				);
+			}
+			
+			for(List<AbstractAgent> part : parts) {
+				Worker worker = new Worker(part, dt);
+				worker.start();
+			}
+
+			/*
 			for (var agent: agents) {
 				agent.step(dt);
 			}
+			*/
+
 			t += dt;
 			
 			notifyNewStep(t, agents, env);
