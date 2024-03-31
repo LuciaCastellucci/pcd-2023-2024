@@ -2,6 +2,7 @@ package pcd.ass01sol01.simengineseq;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -40,14 +41,11 @@ public abstract class AbstractSimulation {
 	private long endWallTime;
 	private long averageTimePerStep;
 
-	private Semaphore stepDone;
-
 
 	protected AbstractSimulation() {
 		agents = new ArrayList<AbstractAgent>();
 		listeners = new ArrayList<SimulationListener>();
 		toBeInSyncWithWallTime = false;
-		stepDone = new Semaphore(1, true);
 	}
 	
 	/**
@@ -83,7 +81,8 @@ public abstract class AbstractSimulation {
 		int nSteps = 0;
 
 		int nThread = Runtime.getRuntime().availableProcessors();
-		CyclicBarrier barrier = new CyclicBarrier(nThread);
+		int barrierSize = (Math.min(agents.size(), nThread)) + 1;
+		CyclicBarrier barrier = new CyclicBarrier(barrierSize);
 
 		while (nSteps < numSteps) {
 			currentWallTime = System.currentTimeMillis();
@@ -93,25 +92,29 @@ public abstract class AbstractSimulation {
 			env.step(dt);
 
 			List<List<AbstractAgent>> parts = new ArrayList<List<AbstractAgent>>();
-			int partsSize = agents.size() / nThread;
+			int agentsSplitted = 0;
+			int partsSize = agents.size() / (nThread - 1);
 			if (partsSize == 0) {
-				nThread = agents.size();
 				partsSize = 1;
 			}
-			for (int i = 0; i < agents.size(); i += partsSize) {
+			int nParts = Math.min(agents.size(), nThread);
+			for (int i = 0; i < nParts; i++) {
+				int to = agentsSplitted + partsSize;
+				if (i == nThread - 1) {
+					to = agents.size();
+				}
 				parts.add(new ArrayList<AbstractAgent>(
-						agents.subList(i, Math.min(agents.size(), i + partsSize)))
-				);
+						agents.subList(agentsSplitted, to)));
+				agentsSplitted += partsSize;
 			}
 
-			//boolean lastStep = nSteps == numSteps - 1;
-			//int c = 0;
 			for(List<AbstractAgent> part : parts) {
 				Worker worker = new Worker(part, dt, barrier);
-				//c++;
-				//Worker worker = new Worker("Step " + nSteps + " Worker " + c, part, dt, barrier, numSteps);
 				worker.start();
 			}
+			try {
+				barrier.await();
+			} catch (InterruptedException | BrokenBarrierException ignored) {}
 
 			t += dt;
 
