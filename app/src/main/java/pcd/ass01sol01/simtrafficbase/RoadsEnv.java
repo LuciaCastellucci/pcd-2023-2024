@@ -26,14 +26,15 @@ public class RoadsEnv extends AbstractEnvironment {
 	/* cars situated in the environment */	
 	private HashMap<String, CarAgentInfo> registeredCars;
 
-	private Lock mutex;
+	private HashMap<String, Lock> locks;
 
 	public RoadsEnv() {
 		super("traffic-env");
 		registeredCars = new HashMap<>();	
 		trafficLights = new ArrayList<>();
 		roads = new ArrayList<>();
-		mutex =  new ReentrantLock();
+		//mutex =  new ReentrantLock();
+		locks = new HashMap<>();
 	}
 	
 	@Override
@@ -52,6 +53,7 @@ public class RoadsEnv extends AbstractEnvironment {
 	
 	public void registerNewCar(CarAgent car, Road road, double pos) {
 		registeredCars.put(car.getId(), new CarAgentInfo(car, road, pos));
+		locks.put(car.getId(), new ReentrantLock());
 	}
 
 	public Road createRoad(P2d p0, P2d p1) {
@@ -68,18 +70,18 @@ public class RoadsEnv extends AbstractEnvironment {
 
 	@Override
 	public Percept getCurrentPercepts(String agentId) {
-		//try {
-			//mutex.lock();
+		try {
+			locks.get(agentId).lock();
 			CarAgentInfo carInfo = registeredCars.get(agentId);
 			double pos = carInfo.getPos();
 			Road road = carInfo.getRoad();
 			Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road,pos, CAR_DETECTION_RANGE);
 			Optional<TrafficLightInfo> nearestSem = getNearestSemaphoreInFront(road,pos, SEM_DETECTION_RANGE);
 			return new CarPercept(pos, nearestCar, nearestSem);
-		//}
-		//finally {
-			//mutex.unlock();
-		//}
+		 }
+		 finally {
+			locks.get(agentId).unlock();
+		}
 	}
 
 	private Optional<CarAgentInfo> getNearestCarInFront(Road road, double carPos, double range){
@@ -108,7 +110,7 @@ public class RoadsEnv extends AbstractEnvironment {
 	@Override
 	public void doAction(String agentId, Action act) {
 		try {
-			mutex.lock();
+			locks.get(agentId).lock();
 			switch (act) {
 			case MoveForward mv: {
 				CarAgentInfo info = registeredCars.get(agentId);
@@ -132,7 +134,7 @@ public class RoadsEnv extends AbstractEnvironment {
 			default: break;
 			}
 		} finally {
-			mutex.unlock();
+			locks.get(agentId).unlock();
 		}
 	}
 	
