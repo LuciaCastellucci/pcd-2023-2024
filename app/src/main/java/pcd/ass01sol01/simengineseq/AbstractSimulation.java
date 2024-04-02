@@ -60,6 +60,12 @@ public abstract class AbstractSimulation {
 	 */
 	protected abstract void setup();
 
+	/**
+	 * Method running the simulation for a large number of steps,
+	 * using a concurrent approach.
+	 * It's used only for testing performance using RunTrafficSimulationMassiveTest.
+	 * @param numSteps
+	 */
 	public void run(int numSteps) {
 		synch.notifyStarted(numSteps);
 		run();
@@ -208,6 +214,6 @@ public abstract class AbstractSimulation {
 			if (wallTimeDT < delay) {
 				Thread.sleep(delay - wallTimeDT);
 			}
-		} catch (Exception ex) {}		
+		} catch (Exception ignored) {}
 	}
 }
