@@ -7,20 +7,26 @@ package pcd.ass01sol01.simtrafficexamples;
  */
 public class RunTrafficSimulation {
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
+		StartSynch synch = new StartSynch();
+		Flag stopFlag = new Flag();
+		Controller controller = new Controller(synch, stopFlag);
 
-		var simulation = new TrafficSimulationSingleRoadTwoCars();
-		// var simulation = new TrafficSimulationSingleRoadSeveralCars();
-		// var simulation = new TrafficSimulationSingleRoadWithTrafficLightTwoCars();
-		// var simulation = new TrafficSimulationWithCrossRoads();
+		var simulation = new TrafficSimulationSingleRoadTwoCars(stopFlag, synch);
+		// var simulation = new TrafficSimulationSingleRoadSeveralCars(stopFlag, synch);
+		// var simulation = new TrafficSimulationSingleRoadWithTrafficLightTwoCars(stopFlag, synch);
+		//var simulation = new TrafficSimulationWithCrossRoads(stopFlag, synch);
 		simulation.setup();
-		
-		RoadSimStatistics stat = new RoadSimStatistics();
-		RoadSimView view = new RoadSimView();
-		view.display();
-		
+
+		StatisticsListener stat = new StatisticsListener();
 		simulation.addSimulationListener(stat);
-		simulation.addSimulationListener(view);		
-		simulation.run(10000);
+
+		RoadSimView view = new RoadSimView();
+		StateListener stateListener = new StateListener(view);
+		simulation.addSimulationListener(stateListener);
+
+		view.setViewListener(controller);
+		view.display();
+		simulation.run();
 	}
 }

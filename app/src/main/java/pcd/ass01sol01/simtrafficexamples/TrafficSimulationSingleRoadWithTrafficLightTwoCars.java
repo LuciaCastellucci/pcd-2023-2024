@@ -11,8 +11,8 @@ import pcd.ass01sol01.simtrafficbase.TrafficLight.TrafficLightState;
  */
 public class TrafficSimulationSingleRoadWithTrafficLightTwoCars extends AbstractSimulation {
 
-	public TrafficSimulationSingleRoadWithTrafficLightTwoCars() {
-		super();
+	public TrafficSimulationSingleRoadWithTrafficLightTwoCars(Flag stopFlag, StartSynch sync) {
+		super(stopFlag, sync);
 	}
 	
 	public void setup() {

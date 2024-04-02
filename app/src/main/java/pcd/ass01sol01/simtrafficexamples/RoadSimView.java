@@ -2,33 +2,66 @@ package pcd.ass01sol01.simtrafficexamples;
 
 import pcd.ass01sol01.simengineseq.AbstractAgent;
 import pcd.ass01sol01.simengineseq.AbstractEnvironment;
-import pcd.ass01sol01.simengineseq.SimulationListener;
 import pcd.ass01sol01.simtrafficbase.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
-public class RoadSimView extends JFrame implements SimulationListener {
+public class RoadSimView extends JFrame implements ActionListener {
 
 	private RoadSimViewPanel panel;
+	private JButton startButton;
+	private JButton stopButton;
+	private JTextField steps;
+	private JTextField state;
+
+	private ViewListener listener;
+
 	private static final int CAR_DRAW_SIZE = 10;
 	
 	public RoadSimView() {
 		super("RoadSim View");
 		setSize(1500,600);
+
+		steps = new JTextField(5);
+		steps.setText("0");
+
+		startButton = new JButton("start");
+		stopButton = new JButton("stop");
+		stopButton.setEnabled(false);
 			
 		panel = new RoadSimViewPanel(1500,600); 
 		panel.setSize(1500, 600);
 
 		JPanel cp = new JPanel();
+
+		JPanel controlPanel = new JPanel();
+		controlPanel.add(new JLabel("steps: "));
+		controlPanel.add(steps);
+		controlPanel.add(startButton);
+		controlPanel.add(stopButton);
+
+		JPanel infoPanel = new JPanel();
+		state = new JTextField(20);
+		state.setText("Ready to start");
+		state.setEditable(false);
+		infoPanel.add(new JLabel("State"));
+		infoPanel.add(state);
+
 		LayoutManager layout = new BorderLayout();
 		cp.setLayout(layout);
+		cp.add(BorderLayout.NORTH,controlPanel);
 		cp.add(BorderLayout.CENTER,panel);
-		setContentPane(cp);		
-		
+		cp.add(BorderLayout.SOUTH, infoPanel);
+		setContentPane(cp);
+
+		startButton.addActionListener(this);
+		stopButton.addActionListener(this);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-			
 	}
 	
 	public void display() {
@@ -37,18 +70,41 @@ public class RoadSimView extends JFrame implements SimulationListener {
 		});
 	}
 
-	@Override
-	public void notifyInit(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void notifyStepDone(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
 		var e = ((RoadsEnv) env);
 		panel.update(e.getRoads(), e.getAgentInfo(), e.getTrafficLights());
 	}
-	
+
+	public void setViewListener(ViewListener l){
+		listener = l;
+	}
+
+	private void notifyStarted(int nSteps){
+		stopButton.setEnabled(true);
+		startButton.setEnabled(false);
+		listener.started(nSteps);
+	}
+
+	private void notifyStopped(){
+		stopButton.setEnabled(false);
+		listener.stopped();
+	}
+
+	public void actionPerformed(ActionEvent ev){
+		String cmd = ev.getActionCommand();
+		if (cmd.equals("start")){
+			int nSteps = Integer.parseInt(steps.getText());
+			notifyStarted(nSteps);
+		} else if (cmd.equals("stop")){
+			notifyStopped();
+		}
+	}
+
+	public void changeState(final String s){
+		SwingUtilities.invokeLater(() -> {
+			state.setText(s);
+		});;
+	}
 	
 	class RoadSimViewPanel extends JPanel {
 		

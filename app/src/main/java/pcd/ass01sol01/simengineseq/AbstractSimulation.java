@@ -8,6 +8,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import pcd.ass01sol01.simtrafficexamples.*;
+
 /**
  * Base class for defining concrete simulations
  * Cuore dell'engine
@@ -40,12 +42,15 @@ public abstract class AbstractSimulation {
 	private long startWallTime;
 	private long endWallTime;
 	private long averageTimePerStep;
+	private Flag stopFlag;
+	private StartSynch synch;
 
-
-	protected AbstractSimulation() {
+	protected AbstractSimulation(Flag stopFlag, StartSynch sync) {
 		agents = new ArrayList<AbstractAgent>();
 		listeners = new ArrayList<SimulationListener>();
 		toBeInSyncWithWallTime = false;
+		this.stopFlag = stopFlag;
+		this.synch = sync;
 	}
 	
 	/**
@@ -54,83 +59,91 @@ public abstract class AbstractSimulation {
 	 * 
 	 */
 	protected abstract void setup();
+
+	public void run(int numSteps) {
+		synch.notifyStarted(numSteps);
+		run();
+	}
 	
 	/**
 	 * Method running the simulation for a number of steps,
-	 * using a sequential approach
-	 *
-	 * Implementazione 1:1 rispetto allo pseudocodice
-	 * 
-	 * @param numSteps
+	 * using a concurrent approach
 	 */
-	public void run(int numSteps) {		
+	public void run() {
+		try {
+			int numSteps = synch.waitStart();
+			notifyStateChanged("Running");
 
-		startWallTime = System.currentTimeMillis();
+			startWallTime = System.currentTimeMillis();
 
-		/* initialize the env and the agents inside */
-		int t = t0;
+			/* initialize the env and the agents inside */
+			int t = t0;
 
-		env.init();
-		for (var a: agents) {
-			a.init(env);
-		}
-
-		this.notifyReset(t, agents, env);
-		
-		long timePerStep = 0;
-		int nSteps = 0;
-
-		int nThread = Runtime.getRuntime().availableProcessors();
-		int barrierSize = (Math.min(agents.size(), nThread)) + 1;
-		CyclicBarrier barrier = new CyclicBarrier(barrierSize);
-
-		while (nSteps < numSteps) {
-			currentWallTime = System.currentTimeMillis();
-
-			/* make a step */
-
-			env.step(dt);
-
-			List<List<AbstractAgent>> parts = new ArrayList<List<AbstractAgent>>();
-			int agentsSplitted = 0;
-			int partsSize = agents.size() / (nThread - 1);
-			if (partsSize == 0) {
-				partsSize = 1;
+			env.init();
+			for (var a: agents) {
+				a.init(env);
 			}
-			int nParts = Math.min(agents.size(), nThread);
-			for (int i = 0; i < nParts; i++) {
-				int to = agentsSplitted + partsSize;
-				if (i == nThread - 1) {
-					to = agents.size();
+
+			this.notifyReset(t, agents, env);
+
+			long timePerStep = 0;
+			int nSteps = 0;
+
+			int nThread = Runtime.getRuntime().availableProcessors();
+			int barrierSize = (Math.min(agents.size(), nThread)) + 1;
+			CyclicBarrier barrier = new CyclicBarrier(barrierSize);
+
+			while (nSteps < numSteps) {
+				currentWallTime = System.currentTimeMillis();
+
+				/* make a step */
+
+				env.step(dt);
+
+				List<List<AbstractAgent>> parts = new ArrayList<List<AbstractAgent>>();
+				int agentsSplitted = 0;
+				int partsSize = agents.size() / (nThread - 1);
+				if (partsSize == 0) {
+					partsSize = 1;
 				}
-				parts.add(new ArrayList<AbstractAgent>(
-						agents.subList(agentsSplitted, to)));
-				agentsSplitted += partsSize;
+				int nParts = Math.min(agents.size(), nThread);
+				for (int i = 0; i < nParts; i++) {
+					int to = agentsSplitted + partsSize;
+					if (i == nThread - 1) {
+						to = agents.size();
+					}
+					parts.add(new ArrayList<AbstractAgent>(
+							agents.subList(agentsSplitted, to)));
+					agentsSplitted += partsSize;
+				}
+
+				for(List<AbstractAgent> part : parts) {
+					Worker worker = new Worker(part, dt, barrier);
+					worker.start();
+				}
+				try {
+					barrier.await();
+				} catch (InterruptedException | BrokenBarrierException ignored) {}
+
+				t += dt;
+
+				if (!stopFlag.isSet()) {
+					notifyNewStep(t, agents, env);
+				} else {
+					notifyStateChanged("Interrupted");
+				}
+
+				nSteps++;
+				timePerStep += System.currentTimeMillis() - currentWallTime;
+
+				if (toBeInSyncWithWallTime) {
+					syncWithWallTime();
+				}
 			}
 
-			for(List<AbstractAgent> part : parts) {
-				Worker worker = new Worker(part, dt, barrier);
-				worker.start();
-			}
-			try {
-				barrier.await();
-			} catch (InterruptedException | BrokenBarrierException ignored) {}
-
-			t += dt;
-
-			notifyNewStep(t, agents, env);
-
-			nSteps++;
-			timePerStep += System.currentTimeMillis() - currentWallTime;
-
-			if (toBeInSyncWithWallTime) {
-				syncWithWallTime();
-			}
-		}	
-		
-		endWallTime = System.currentTimeMillis();
-		this.averageTimePerStep = timePerStep / numSteps;
-		
+			endWallTime = System.currentTimeMillis();
+			this.averageTimePerStep = timePerStep / numSteps;
+		} catch (Exception ignored) { }
 	}
 	
 	public long getSimulationDuration() {
@@ -176,6 +189,12 @@ public abstract class AbstractSimulation {
 	private void notifyNewStep(int t, List<AbstractAgent> agents, AbstractEnvironment env) {
 		for (var l: listeners) {
 			l.notifyStepDone(t, agents, env);
+		}
+	}
+
+	private void notifyStateChanged(String message) {
+		for (var l: listeners) {
+			l.notifyStateChanged(message);
 		}
 	}
 

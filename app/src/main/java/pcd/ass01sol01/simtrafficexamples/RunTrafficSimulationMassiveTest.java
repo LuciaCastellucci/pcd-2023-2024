@@ -6,8 +6,10 @@ public class RunTrafficSimulationMassiveTest {
 
 		int numCars = 5000;
 		int nSteps = 100;
-		
-		var simulation = new TrafficSimulationSingleRoadMassiveNumberOfCars(numCars);
+
+		StartSynch synch = new StartSynch();
+		Flag stopFlag = new Flag();
+		var simulation = new TrafficSimulationSingleRoadMassiveNumberOfCars(stopFlag, synch, numCars);
 		simulation.setup();
 		
 		log("Running the simulation: " + numCars + " cars, for " + nSteps + " steps ...");
@@ -16,6 +18,8 @@ public class RunTrafficSimulationMassiveTest {
 
 		long d = simulation.getSimulationDuration();
 		log("Completed in " + d + " ms - average time per step: " + simulation.getAverageTimePerCycle() + " ms");
+
+
 	}
 	
 	private static void log(String msg) {

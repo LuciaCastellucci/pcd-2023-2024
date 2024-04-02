@@ -11,8 +11,8 @@ import pcd.ass01sol01.simtrafficbase.*;
  */
 public class TrafficSimulationSingleRoadSeveralCars extends AbstractSimulation {
 
-	public TrafficSimulationSingleRoadSeveralCars() {
-		super();
+	public TrafficSimulationSingleRoadSeveralCars(Flag stopFlag, StartSynch sync) {
+		super(stopFlag, sync);
 	}
 	
 	public void setup() {

@@ -8,10 +8,10 @@ import java.util.Random;
 
 public class TrafficSimulationWithCrossRoads extends AbstractSimulation {
 
-	public TrafficSimulationWithCrossRoads() {
-		super();
+	public TrafficSimulationWithCrossRoads(Flag stopFlag, StartSynch sync) {
+		super(stopFlag, sync);
 	}
-	
+
 	public void setup() {
 
 		Random  gen = new Random(1);
