@@ -105,7 +105,19 @@ public class RoadSimView extends JFrame implements ActionListener {
 			state.setText(s);
 		});;
 	}
-	
+
+	public void stepOver() {
+		SwingUtilities.invokeLater(() -> {
+			state.setText("Steps over");
+		});
+		steps.setText("0");
+		stopButton.setEnabled(false);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException ignored) {}
+		System.exit(0);
+	}
+
 	class RoadSimViewPanel extends JPanel {
 		
 		List<CarAgentInfo> cars;

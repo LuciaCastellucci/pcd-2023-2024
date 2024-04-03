@@ -4,10 +4,7 @@ import pcd.ass01sol01.simengineseq.AbstractEnvironment;
 import pcd.ass01sol01.simengineseq.Action;
 import pcd.ass01sol01.simengineseq.Percept;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,7 +30,6 @@ public class RoadsEnv extends AbstractEnvironment {
 		registeredCars = new HashMap<>();	
 		trafficLights = new ArrayList<>();
 		roads = new ArrayList<>();
-		//mutex =  new ReentrantLock();
 		locks = new HashMap<>();
 	}
 	
@@ -75,7 +71,7 @@ public class RoadsEnv extends AbstractEnvironment {
 			CarAgentInfo carInfo = registeredCars.get(agentId);
 			double pos = carInfo.getPos();
 			Road road = carInfo.getRoad();
-			Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road,pos, CAR_DETECTION_RANGE);
+			Optional<CarAgentInfo> nearestCar = getNearestCarInFront(agentId, road,pos, CAR_DETECTION_RANGE);
 			Optional<TrafficLightInfo> nearestSem = getNearestSemaphoreInFront(road,pos, SEM_DETECTION_RANGE);
 			return new CarPercept(pos, nearestCar, nearestSem);
 		 }
@@ -84,22 +80,53 @@ public class RoadsEnv extends AbstractEnvironment {
 		}
 	}
 
-	private Optional<CarAgentInfo> getNearestCarInFront(Road road, double carPos, double range){
+	private Optional<CarAgentInfo> getNearestCarInFront(String currentAgentId, Road road, double carPos, double range){
+		Optional<CarAgentInfo> closestCar = Optional.empty();
+		double minDistance = Double.MAX_VALUE;
+
+		for (Map.Entry<String, CarAgentInfo> registeredCar : registeredCars.entrySet()) {
+			CarAgentInfo carInfo = registeredCar.getValue();
+			if (currentAgentId.equalsIgnoreCase(registeredCar.getKey())) {
+				if (carInfo.getRoad() == road) {
+					double dist = carInfo.getPos() - carPos;
+					if (dist > 0 && dist <= range && dist < minDistance) {
+						minDistance = dist;
+						closestCar = Optional.of(carInfo);
+					}
+				}
+			} else {
+				try {
+					locks.get(currentAgentId).lock();
+					if (carInfo.getRoad() == road) {
+						double dist = carInfo.getPos() - carPos;
+						if (dist > 0 && dist <= range && dist < minDistance) {
+							minDistance = dist;
+							closestCar = Optional.of(carInfo);
+						}
+					}
+				} finally {
+					locks.get(currentAgentId).unlock();
+				}
+			}
+		}
+		return closestCar;
+		/*
 		return 
 				registeredCars
 				.entrySet()
 				.stream()
-				.map(el -> el.getValue())
+				.map(Map.Entry::getValue)
 				.filter((carInfo) -> carInfo.getRoad() == road)
 				.filter((carInfo) -> {
 					double dist = carInfo.getPos() - carPos;
 					return dist > 0 && dist <= range;
 				})
 				.min((c1, c2) -> (int) Math.round(c1.getPos() - c2.getPos()));
+		 */
 	}
 
 	private Optional<TrafficLightInfo> getNearestSemaphoreInFront(Road road, double carPos, double range){
-		return 
+		return
 				road.getTrafficLights()
 				.stream()
 				.filter((TrafficLightInfo tl) -> tl.roadPos() > carPos)
@@ -115,9 +142,9 @@ public class RoadsEnv extends AbstractEnvironment {
 			case MoveForward mv: {
 				CarAgentInfo info = registeredCars.get(agentId);
 				Road road = info.getRoad();
-				Optional<CarAgentInfo> nearestCar = getNearestCarInFront(road, info.getPos(), CAR_DETECTION_RANGE);
+				Optional<CarAgentInfo> nearestCar = getNearestCarInFront(agentId, road, info.getPos(), CAR_DETECTION_RANGE);
 
-				if (!nearestCar.isEmpty()) {
+				if (nearestCar.isPresent()) {
 					double dist = nearestCar.get().getPos() - info.getPos();
 					if (dist > mv.distance() + MIN_DIST_ALLOWED) {
 						info.updatePos(info.getPos() + mv.distance());
@@ -138,9 +165,8 @@ public class RoadsEnv extends AbstractEnvironment {
 		}
 	}
 	
-	
 	public List<CarAgentInfo> getAgentInfo(){
-		return this.registeredCars.entrySet().stream().map(el -> el.getValue()).toList();
+		return this.registeredCars.values().stream().toList();
 	}
 
 	public List<Road> getRoads(){

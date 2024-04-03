@@ -150,6 +150,7 @@ public abstract class AbstractSimulation {
 			endWallTime = System.currentTimeMillis();
 			this.averageTimePerStep = timePerStep / numSteps;
 		} catch (Exception ignored) { }
+		notifyStepOver();
 	}
 	
 	public long getSimulationDuration() {
@@ -201,6 +202,12 @@ public abstract class AbstractSimulation {
 	private void notifyStateChanged(String message) {
 		for (var l: listeners) {
 			l.notifyStateChanged(message);
+		}
+	}
+
+	private void notifyStepOver() {
+		for (var l: listeners) {
+			l.notifyStepOver();
 		}
 	}
 

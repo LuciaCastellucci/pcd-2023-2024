@@ -58,6 +58,11 @@ public class StatisticsListener implements SimulationListener {
 		log("interrupted simulation");
 	}
 
+	@Override
+	public void notifyStepOver() {
+
+	}
+
 	public double getAverageSpeed() {
 		return this.averageSpeed;
 	}

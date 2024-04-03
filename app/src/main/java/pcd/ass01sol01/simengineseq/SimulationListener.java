@@ -23,4 +23,6 @@ public interface SimulationListener {
 
 
 	void notifyStateChanged(String message);
+
+	void notifyStepOver();
 }

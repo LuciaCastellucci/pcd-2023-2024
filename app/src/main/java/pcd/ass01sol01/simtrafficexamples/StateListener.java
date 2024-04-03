@@ -27,4 +27,9 @@ public class StateListener implements SimulationListener {
     public void notifyStateChanged(String message) {
         view.changeState(message);
     }
+
+    @Override
+    public void notifyStepOver() {
+        view.stepOver();
+    }
 }
