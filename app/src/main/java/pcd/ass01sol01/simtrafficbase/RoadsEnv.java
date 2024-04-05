@@ -110,19 +110,6 @@ public class RoadsEnv extends AbstractEnvironment {
 			}
 		}
 		return closestCar;
-		/*
-		return 
-				registeredCars
-				.entrySet()
-				.stream()
-				.map(Map.Entry::getValue)
-				.filter((carInfo) -> carInfo.getRoad() == road)
-				.filter((carInfo) -> {
-					double dist = carInfo.getPos() - carPos;
-					return dist > 0 && dist <= range;
-				})
-				.min((c1, c2) -> (int) Math.round(c1.getPos() - c2.getPos()));
-		 */
 	}
 
 	private Optional<TrafficLightInfo> getNearestSemaphoreInFront(Road road, double carPos, double range){
