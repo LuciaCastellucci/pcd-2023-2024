@@ -15,7 +15,7 @@ public class RunTrafficSimulation {
 		var simulation = new TrafficSimulationSingleRoadTwoCars(stopFlag, synch);
 		// var simulation = new TrafficSimulationSingleRoadSeveralCars(stopFlag, synch);
 		// var simulation = new TrafficSimulationSingleRoadWithTrafficLightTwoCars(stopFlag, synch);
-		//var simulation = new TrafficSimulationWithCrossRoads(stopFlag, synch);
+		// var simulation = new TrafficSimulationWithCrossRoads(stopFlag, synch);
 		simulation.setup();
 
 		StatisticsListener stat = new StatisticsListener();

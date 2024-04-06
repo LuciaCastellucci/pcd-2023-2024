@@ -39,6 +39,9 @@ public class CarAgentExtended extends CarAgent {
 	
 	@Override
 	public void decide(int dt) {
+		int max = 5;
+		int min = 1;
+		int range = max - min + 1;
 		switch (state) {
 		case CarAgentState.STOPPED:
 			if (!detectedNearCar()) {
@@ -51,7 +54,7 @@ public class CarAgentExtended extends CarAgent {
 			} else if (detectedRedOrOrgangeSemNear()) {
 				state = CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM;
 			} else {
-				this.currentSpeed += acceleration * dt;
+				this.currentSpeed += acceleration * Math.random() * range;
 				if (currentSpeed >= maxSpeed) {
 					state = CarAgentState.MOVING_CONSTANT_SPEED;
 				}			
@@ -65,7 +68,7 @@ public class CarAgentExtended extends CarAgent {
 			}
 			break;
 		case CarAgentState.DECELERATING_BECAUSE_OF_A_CAR:
-			this.currentSpeed -= deceleration * dt;
+			this.currentSpeed -= deceleration * Math.random() * range;
 			if (this.currentSpeed <= 0) {
 				state =  CarAgentState.STOPPED;
 			} else if (this.carFarEnough()) {
@@ -74,7 +77,7 @@ public class CarAgentExtended extends CarAgent {
 			}
 			break;
 		case CarAgentState.DECELERATING_BECAUSE_OF_A_NOT_GREEN_SEM:
-			this.currentSpeed -= deceleration * dt;
+			this.currentSpeed -= deceleration * Math.random() * range;
 			if (this.currentSpeed <= 0) {
 				state =  CarAgentState.WAITING_FOR_GREEN_SEM;
 			} else if (!detectedRedOrOrgangeSemNear()) {
@@ -82,7 +85,7 @@ public class CarAgentExtended extends CarAgent {
 			}
 			break;
 		case CarAgentState.WAIT_A_BIT:
-			waitingTime += dt;
+			waitingTime += Math.random() * range;
 			if (waitingTime > MAX_WAITING_TIME) {
 				state = CarAgentState.ACCELERATING;
 			}

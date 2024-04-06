@@ -76,8 +76,6 @@ public class CarAgentBasic extends CarAgent {
 			}
 			break;
 		case CarAgentState.WAIT_A_BIT:
-			min = 1;
-			max = 2;
 			waitingTime += (int)(Math.random() * range);
 			if (waitingTime > MAX_WAITING_TIME) {
 				state = CarAgentState.ACCELERATING;
