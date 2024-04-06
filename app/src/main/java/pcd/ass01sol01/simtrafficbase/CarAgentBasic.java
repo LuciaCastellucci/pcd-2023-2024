@@ -42,6 +42,9 @@ public class CarAgentBasic extends CarAgent {
 	 *
 	 */
 	protected void decide(int dt) {
+		int max = 5;
+		int min = 1;
+		int range = max - min + 1;
 		switch (state) {
 		case CarAgentState.STOPPED:
 			if (!detectedNearCar()) {
@@ -52,7 +55,7 @@ public class CarAgentBasic extends CarAgent {
 			if (detectedNearCar()) {
 				state = CarAgentState.DECELERATING_BECAUSE_OF_A_CAR;
 			} else {
-				this.currentSpeed += acceleration * dt;
+				this.currentSpeed += acceleration * Math.random() * range;
 				if (currentSpeed >= maxSpeed) {
 					state = CarAgentState.MOVING_CONSTANT_SPEED;
 				}			
@@ -64,7 +67,7 @@ public class CarAgentBasic extends CarAgent {
 			} 
 			break;
 		case CarAgentState.DECELERATING_BECAUSE_OF_A_CAR:
-			this.currentSpeed -= deceleration * dt;
+			this.currentSpeed -= deceleration * Math.random() * 2;
 			if (this.currentSpeed <= 0) {
 				state =  CarAgentState.STOPPED;
 			} else if (this.carFarEnough()) {
@@ -73,7 +76,9 @@ public class CarAgentBasic extends CarAgent {
 			}
 			break;
 		case CarAgentState.WAIT_A_BIT:
-			waitingTime += dt;
+			min = 1;
+			max = 2;
+			waitingTime += (int)(Math.random() * range);
 			if (waitingTime > MAX_WAITING_TIME) {
 				state = CarAgentState.ACCELERATING;
 			}

@@ -137,6 +137,7 @@ public abstract class AbstractSimulation {
 					notifyNewStep(t, agents, env);
 				} else {
 					notifyStateChanged("Interrupted");
+					break;
 				}
 
 				nSteps++;
