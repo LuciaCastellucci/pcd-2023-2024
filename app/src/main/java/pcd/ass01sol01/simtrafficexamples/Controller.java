@@ -1,10 +1,5 @@
 package pcd.ass01sol01.simtrafficexamples;
 
-import pcd.ass01sol01.simengineseq.AbstractAgent;
-import pcd.ass01sol01.simengineseq.AbstractEnvironment;
-
-import java.util.List;
-
 /**
  * Controller part of the application - passive part.
  * 

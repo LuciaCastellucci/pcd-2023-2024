@@ -1,5 +1,4 @@
-package pcd.ass01.simengineseq;
-
+package pcd.ass01.simengineseq.version0;
 /**
  *   
  * Base class to define the environment of the simulation

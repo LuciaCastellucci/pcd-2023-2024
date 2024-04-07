@@ -1,4 +1,4 @@
-package pcd.ass01.simtrafficbase;
+package pcd.ass01.simtrafficbase.version0;
 
 public  class CarAgentInfo {
 

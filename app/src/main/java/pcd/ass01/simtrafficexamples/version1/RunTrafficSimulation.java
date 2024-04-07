@@ -1,4 +1,4 @@
-package pcd.ass01.simtrafficexamples_improved;
+package pcd.ass01.simtrafficexamples.version1;
 
 /**
  * 
