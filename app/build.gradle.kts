@@ -23,6 +23,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("io.vertx:vertx-core:4.5.7")
+    implementation("io.vertx:vertx-web:4.5.7")
+    implementation("io.vertx:vertx-web-client:4.5.7")
+       
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
