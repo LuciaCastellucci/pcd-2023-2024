@@ -13,9 +13,12 @@ class TestExecBlocking extends AbstractVerticle {
 		log("before");
 
 		// x++;
-	
+
+		// Future di vertex  = promise teorica
 		Future<Integer> res = this.getVertx().executeBlocking(() -> {
 			// Call some blocking API that takes a significant amount of time to return
+			// Attenzione: questo codice non deve accedere allo stato del componente reattivo,
+			// poichè questo può comportare corse critiche rispetto all event loop
 			log("blocking computation started");
 			try {
 				// x++;
@@ -36,6 +39,8 @@ class TestExecBlocking extends AbstractVerticle {
 		res.onComplete((AsyncResult<Integer> r) -> {
 			log("result: " + r.result());
 		});
+
+		res.onSuccess((erre) -> {});
 	}
 
 	private void log(String msg) {

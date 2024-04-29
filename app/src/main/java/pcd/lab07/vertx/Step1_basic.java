@@ -18,9 +18,10 @@ public class Step1_basic {
 		log("doing the async call... ");
 		
 		/* version 4.X - future (promise) based API */
+
+		System.out.println(System.getProperty("user.dir"));
 		
-		
-		Future<Buffer> fut = fs.readFile("build.gradle.kts");
+		Future<Buffer> fut = fs.readFile("app/build.gradle.kts");
 		fut.onComplete((AsyncResult<Buffer> res) -> {
 			log("BUILD \n" + res.result().toString().substring(0,160));
 		});

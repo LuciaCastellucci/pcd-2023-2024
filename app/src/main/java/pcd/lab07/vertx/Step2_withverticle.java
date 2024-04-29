@@ -7,13 +7,16 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.file.FileSystem;
 
 class MyReactiveAgent extends AbstractVerticle {
-	
+
+	// In questo contesto tutte le chiamate eseguite vengono eseguite dall'event loop
+	// Ogni verticle ha la sua event queue e unsuo event loop..
+	// ... spetta al programmatore assicurarsi che abbia amche un suo stato
 	public void start() {
 		log("1 - doing the async call...");
 		
 		FileSystem fs = getVertx().fileSystem();    		
 		
-		Future<Buffer> f1 = fs.readFile("build.gradle.kts");
+		Future<Buffer> f1 = fs.readFile("app/build.gradle.kts");
 
 		f1.onComplete((AsyncResult<Buffer> res) -> {
 			log("4 - BUILD \n" + res.result().toString().substring(0,160));
@@ -22,7 +25,7 @@ class MyReactiveAgent extends AbstractVerticle {
 		log("2 - doing the seconf async call...");
 
 		fs
-		.readFile("../settings.gradle.kts")
+		.readFile("settings.gradle.kts")
 		.onComplete((AsyncResult<Buffer> res) -> {
 			log("4 - SETTINGS \n" + res.result().toString().substring(0,160));
 		});
