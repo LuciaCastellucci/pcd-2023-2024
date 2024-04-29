@@ -1,7 +1,11 @@
 package pcd.ass01.simtrafficexamples.version0;
 
-import pcd.ass01.simengineseq.version0.*;
-import pcd.ass01.simtrafficbase.version0.*;
+import pcd.ass01.simengineseq.version0.AbstractSimulation;
+import pcd.ass01.simtrafficbase.version0.CarAgent;
+import pcd.ass01.simtrafficbase.version0.CarAgentBasic;
+import pcd.ass01.simtrafficbase.version0.P2d;
+import pcd.ass01.simtrafficbase.version0.Road;
+import pcd.ass01.simtrafficbase.version0.RoadsEnv;
 
 /**
  * 

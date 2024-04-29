@@ -1,4 +1,5 @@
 package pcd.ass01.simengineseq.version0;
+
 /**
  *   
  * Base class to define the environment of the simulation
@@ -32,9 +33,7 @@ public abstract class AbstractEnvironment {
 
 	/**
 	 * 
-	 * Called by an agent to get its percepts
-	 * Metodo con cui l'agente chiede all'ambiente cosa percepisce
-	 * (tipo se e quali sono le macchine vicine o semafori vicini etc)
+	 * Called by an agent to get its percepts 
 	 * 
 	 * @param agentId - identifier of the agent
 	 * @return agent percept
@@ -44,7 +43,6 @@ public abstract class AbstractEnvironment {
 	/**
 	 * 
 	 * Called by agent to submit an action to the environment
-	 * L'agente va a fare un azione effettivamente
 	 * 
 	 * @param agentId - identifier of the agent doing the action
 	 * @param act - the action

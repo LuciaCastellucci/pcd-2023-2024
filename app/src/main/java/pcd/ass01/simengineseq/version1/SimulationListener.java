@@ -1,4 +1,5 @@
 package pcd.ass01.simengineseq.version1;
+
 import java.util.List;
 
 public interface SimulationListener {
