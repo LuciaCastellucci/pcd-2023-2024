@@ -17,6 +17,7 @@ public class Test03c_sched_callable {
 		})
 		.subscribeOn(Schedulers.io()) 		// use a background thread for the callable
 		.observeOn(Schedulers.single())		// use a single UI thread-like for subscribers
+		// viene usato un solo thread, diverso dal chiamante main, per eseguire al computazione
 		.subscribe(s -> {
 			log("result: " + s);
 		});

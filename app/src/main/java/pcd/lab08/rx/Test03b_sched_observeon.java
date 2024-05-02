@@ -27,6 +27,10 @@ public class Test03b_sched_observeon {
 		 * observeOn:
 		 * 
 		 * move the downstream computation to the specified scheduler
+		 *
+		 * permette dunque di spostare le computazioni succesive al observeOn su un pool di thread separato
+		 * le computazioni precedenti all'observeOn, a differenza di quelle precedenti al subscribeOn,
+		 * restano sullo scheduler principale (main)
 		 */
 		Observable.just(100)	
 			.map(v -> { log("map 1 " + v); return v * v; })		// by the current thread (main thread)

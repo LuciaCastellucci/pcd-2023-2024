@@ -7,20 +7,24 @@ import io.reactivex.rxjava3.core.*;
 public class Test01_basic {
 
 	public static void main(String[] args){
+
+		// In questa versione base l'esecuzione della lambda con cui osserviamo mano a mano
+		// che arrivano gli elementi del flusso è fatta dal flusso di controllo chiamante
+		// subscribe è dunque chiamata dal main
 				
 		log("creating with just.");
 		
-	    Observable.just("Hello world").subscribe(s -> {	    		
+	    Observable.just("Hello world - obs").subscribe(s -> {
 	    		log(s);    		
 	    });
 	    
 	    // with inline method
 	    
-	    Flowable.just("Hello world")
+	    Flowable.just("Hello world - flw")
 	    	.subscribe(System.out::println);
 	    
 		// creating a flow (an observable stream) from a static collection
-		
+
 	    // simple subscription 
 	    
 		String[] words = { "Hello", " ", "World", "!" }; 
@@ -38,8 +42,11 @@ public class Test01_basic {
 			.subscribe((String s) -> {
 				log("> " + s);
 			},(Throwable t) -> {
+				// cosa viene eseguito quando si genera un errore
 				log("error  " + t);
 			},() -> {
+				// cosa viene eseguito quando il flusso termina
+				// in questo caso, in cui il flusso parte da un array
 				log("completed");
 			});
 		
