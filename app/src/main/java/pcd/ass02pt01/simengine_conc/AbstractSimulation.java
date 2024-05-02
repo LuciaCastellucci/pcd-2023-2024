@@ -37,7 +37,8 @@ public abstract class AbstractSimulation {
 		startWallTime = System.currentTimeMillis();
 		
 		Semaphore done = new Semaphore(0);
-		MasterAgent agent = new MasterAgent(this, nWorkers, nSteps, stopFlag, done, syncWithTime);
+		int poolSize = (Math.min(agents.size(), nWorkers));
+		MasterAgent agent = new MasterAgent(this, poolSize, nSteps, stopFlag, done, syncWithTime);
 		agent.start();
 		
 		try {

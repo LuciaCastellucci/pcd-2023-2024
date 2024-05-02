@@ -2,7 +2,7 @@ package pcd.ass02pt01.simengine_conc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Semaphore;
 
 public class MasterAgent extends Thread {
@@ -16,7 +16,8 @@ public class MasterAgent extends Thread {
 	private AbstractSimulation sim;
 	private Flag stopFlag;
 	private Semaphore done;
-	private int nWorkers;
+	private int poolSize;
+	private ForkJoinPool forkJoinPool;
 	
 	public MasterAgent(AbstractSimulation sim, int nWorkers, int numSteps, Flag stopFlag, Semaphore done, boolean syncWithTime) {
 		toBeInSyncWithWallTime = false;
@@ -24,7 +25,8 @@ public class MasterAgent extends Thread {
 		this.stopFlag = stopFlag;
 		this.numSteps = numSteps;
 		this.done = done;
-		this.nWorkers = nWorkers;
+		this.poolSize = nWorkers;
+		this.forkJoinPool = new ForkJoinPool(poolSize);
 		
 		if (syncWithTime) {
 			this.syncWithTime(25);
@@ -48,36 +50,24 @@ public class MasterAgent extends Thread {
 		
 		sim.notifyReset(t, simAgents, simEnv);
 		
-		Trigger canDoStep = new Trigger(nWorkers);
-		CyclicBarrier jobDone = new CyclicBarrier(nWorkers + 1);
-		
 		log("creating workers...");
-		
-		int nAssignedAgentsPerWorker = simAgents.size()/nWorkers;
 
-		int index = 0;
-		List<WorkerAgent> workers = new ArrayList<>();
-		for (int i = 0; i < nWorkers - 1; i++) {
-			List<AbstractAgent> assignedSimAgents = new ArrayList<>();
-			for (int j = 0; j < nAssignedAgentsPerWorker; j++) {
-				assignedSimAgents.add(simAgents.get(index));
-				index++;
+		List<List<AbstractAgent>> assignedSimAgents = new ArrayList<List<AbstractAgent>>();
+		int agentsSplitted = 0;
+		int partsSize = simAgents.size() / (poolSize - 1);
+		if (partsSize == 0) {
+			partsSize = 1;
+		}
+		int nParts = Math.min(simAgents.size(), poolSize);
+		for (int i = 0; i < nParts; i++) {
+			int to = agentsSplitted + partsSize;
+			if (i == poolSize - 1) {
+				to = simAgents.size();
 			}
-			
-			WorkerAgent worker = new WorkerAgent("worker-"+i, assignedSimAgents, dt, canDoStep, jobDone, stopFlag);
-			worker.start();
-			workers.add(worker);
+			assignedSimAgents.add(new ArrayList<AbstractAgent>(
+					simAgents.subList(agentsSplitted, to)));
+			agentsSplitted += partsSize;
 		}
-		
-		List<AbstractAgent> assignedSimAgents = new ArrayList<>();
-		while (index < simAgents.size()) {
-			assignedSimAgents.add(simAgents.get(index));
-			index++;
-		}
-
-		WorkerAgent worker = new WorkerAgent("worker-"+(nWorkers-1), assignedSimAgents, dt, canDoStep, jobDone, stopFlag);
-		worker.start();
-		workers.add(worker);
 
 		log("starting the simulation loop.");
 
@@ -90,11 +80,11 @@ public class MasterAgent extends Thread {
 				simEnv.step(dt);
 				simEnv.cleanActions();
 
-				/* trigger workers to do their work in this step */	
-				canDoStep.trig();
-				
-				/* wait for workers to complete */
-				jobDone.await();
+				List<AgentStepTask> tasks = new ArrayList<>();
+				for (int i = 0; i < assignedSimAgents.size(); i++) {
+					tasks.add(new AgentStepTask("task-"+i+" for step: "+step, assignedSimAgents.get(i), dt, stopFlag));
+				}
+				forkJoinPool.invokeAll(tasks);
 
 				/* executed actions */
 				simEnv.processActions();
@@ -116,7 +106,6 @@ public class MasterAgent extends Thread {
 
 		log("done");
 		stopFlag.set();
-		canDoStep.trig();
 
 		done.release();
 	}
