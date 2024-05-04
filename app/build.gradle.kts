@@ -30,7 +30,10 @@ dependencies {
     implementation("io.vertx:vertx-web-client:4.5.7")
        
     /* module 2.2 -- RxJava */
-    implementation("io.reactivex.rxjava3:rxjava:3.1.8")   
+    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+
+    /* assignment 02 */
+    implementation("org.jsoup:jsoup:1.14.3");
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
