@@ -13,21 +13,25 @@ import java.util.Map;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
-public class WebWordFinder {
+public class WebWordFinderVt {
     private static Map<String, Integer> wordOccurrences = new HashMap<>();
     private static List<String> ignoredUrls =  new ArrayList<>();
 
     private static ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public static void main(String[] args) {
-        String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023"; // Replace with the starting web address
-        String word = "system"; // Replace with the word you want to search for
-        int depth = 2; // Depth level
+        var t0 = System.currentTimeMillis();
+        String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023";
+        String word = "system";
+        int depth = 2;
 
         find(url, word, depth);
         generateReport();
+        var t1 = System.currentTimeMillis();
+        System.out.println("Time elapsed: " + (t1 - t0));
     }
 
     private static void find(String url, String word, int depth) {
@@ -64,6 +68,12 @@ public class WebWordFinder {
     }
 
     private static void generateReport() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         System.out.println("Report:");
         for (Map.Entry<String, Integer> entry : wordOccurrences.entrySet()) {
             System.out.println("URL: " + entry.getKey() + ", Occurrences: " + entry.getValue());
