@@ -4,22 +4,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import pcd.ass02.WebWordFinderBase;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-public class WebWordFinderVt {
-    private static Map<String, Integer> wordOccurrences = new HashMap<>();
-    private static List<String> ignoredUrls =  new ArrayList<>();
+public class WebWordFinderVt extends WebWordFinderBase {
 
+    private static Set<String> visitedPages = new HashSet<>();
     private static ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public static void main(String[] args) {
@@ -29,15 +27,23 @@ public class WebWordFinderVt {
         int depth = 2;
 
         find(url, word, depth);
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         generateReport();
         var t1 = System.currentTimeMillis();
         System.out.println("Time elapsed: " + (t1 - t0));
     }
 
     private static void find(String url, String word, int depth) {
-        if (depth == 0) {
+        if (depth == 0 || visitedPages.contains(url)) {
             return;
         }
+
+        visitedPages.add(url);
 
         try {
             Document doc = Jsoup.connect(url).get();
@@ -45,7 +51,7 @@ public class WebWordFinderVt {
             String text = doc.text();
             int occurrences = countOccurrences(text, word);
             if (occurrences > 0)
-                wordOccurrences.put(url, occurrences);
+                pageWordCounts.put(url, occurrences);
 
             Elements links = doc.select("a[href]");
             for (Element link : links) {
@@ -54,33 +60,6 @@ public class WebWordFinderVt {
             }
         } catch (IOException e) {
             ignoredUrls.add(url);
-        }
-    }
-
-    private static int countOccurrences(String text, String word) {
-        String[] words = text.split("\\s+");
-        int count = 0;
-        for (String w : words) {
-            if (w.equalsIgnoreCase(word))
-                count++;
-        }
-        return count;
-    }
-
-    private static void generateReport() {
-        executor.shutdown();
-        try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Report:");
-        for (Map.Entry<String, Integer> entry : wordOccurrences.entrySet()) {
-            System.out.println("URL: " + entry.getKey() + ", Occurrences: " + entry.getValue());
-        }
-        System.out.println("Ignored URLs because of IOException:");
-        for (String url : ignoredUrls) {
-            System.out.println(url);
         }
     }
 }
