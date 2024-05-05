@@ -5,15 +5,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 
-public class WebWordFinderSeq {
-    private static Map<String, Integer> pageWordCounts = new HashMap<>();
-    private static List<String> ignoredUrls =  new ArrayList<>();
+public class WebWordFinderSeq extends WebWordFinderBase {
+
+    private static Set<String> visitedPages = new HashSet<>();
 
     public static void main(String[] args) {
         var t0 = System.currentTimeMillis();
@@ -27,16 +25,18 @@ public class WebWordFinderSeq {
         System.out.println("Time elapsed: " + (t1 - t0));
     }
 
-    private static void find(String url, String word, int depth) {
-        if (depth == 0) {
+    static void find(String url, String word, int depth) {
+        if (depth == 0 || visitedPages.contains(url)) {
             return;
         }
+
+        visitedPages.add(url);
 
         try {
             Document doc = Jsoup.connect(url).get();
 
             String text = doc.text();
-            int occurrences = countOccurrences(text, word);
+            int occurrences = WebWordFinderBase.countOccurrences(text, word);
             if (occurrences > 0)
                 pageWordCounts.put(url, occurrences);
 
@@ -50,24 +50,5 @@ public class WebWordFinderSeq {
         }
     }
 
-    private static int countOccurrences(String text, String word) {
-        String[] words = text.split("\\s+");
-        int count = 0;
-        for (String w : words) {
-            if (w.equalsIgnoreCase(word))
-                count++;
-        }
-        return count;
-    }
 
-    private static void generateReport() {
-        System.out.println("Report:");
-        for (Map.Entry<String, Integer> entry : pageWordCounts.entrySet()) {
-            System.out.println("URL: " + entry.getKey() + ", Occurrences: " + entry.getValue());
-        }
-        System.out.println("Ignored URLs because of IOException:");
-        for (String url : ignoredUrls) {
-            System.out.println(url);
-        }
-    }
 }
