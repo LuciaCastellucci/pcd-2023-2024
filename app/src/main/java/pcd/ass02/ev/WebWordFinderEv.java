@@ -1,4 +1,4 @@
-package pcd.ass02.ev.multivertical;
+package pcd.ass02.ev;
 
 import io.vertx.core.*;
 import io.vertx.core.eventbus.EventBus;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class WebWordFinder {
+public class WebWordFinderEv {
 
     public static void main(String[] args) {
         String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023";
@@ -32,9 +32,14 @@ class ReportVerticle extends AbstractVerticle {
         log("ReportVerticle:: Started.");
 
         EventBus eb = vertx.eventBus();
-        eb.consumer("report.wordCount", message -> {
+        eb.consumer("report.wordCount.success", message -> {
             ScrapeResult scrapeResult = (ScrapeResult) message.body();
             log("Occurency: " + scrapeResult.occurrences() + " for url: " + scrapeResult.url());
+        });
+
+        eb.consumer("report.wordCount.failure", message -> {
+            String ignoredUrl = (String) message.body();
+            log("Ignored due to IOException, url: " + ignoredUrl);
         });
         startPromise.complete();
 
@@ -90,7 +95,7 @@ class FinderVerticle extends AbstractVerticle {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.select("a[href]");
 
-                eventBus.publish("report.wordCount", new ScrapeResult(url, countOccurrences(doc.text())));
+                eventBus.publish("report.wordCount.success", new ScrapeResult(url, countOccurrences(doc.text())));
 
                 List<Future> futures = new ArrayList<>();
                 for (Element link : links) {
@@ -105,6 +110,7 @@ class FinderVerticle extends AbstractVerticle {
                     }
                 });
             } catch (IOException e) {
+                eventBus.publish("report.wordCount.failure", url);
                 promise2.complete();
             }
         }, promise);

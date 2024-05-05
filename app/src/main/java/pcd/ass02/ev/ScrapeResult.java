@@ -1,4 +1,4 @@
-package pcd.ass02.ev.multivertical;
+package pcd.ass02.ev;
 
 import java.io.Serializable;
 
