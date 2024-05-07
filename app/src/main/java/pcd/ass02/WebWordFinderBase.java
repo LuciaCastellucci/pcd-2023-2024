@@ -1,9 +1,6 @@
 package pcd.ass02;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class WebWordFinderBase {
 
@@ -13,12 +10,9 @@ public abstract class WebWordFinderBase {
 
     public static int countOccurrences(String text, String word) {
         String[] words = text.split("\\s+");
-        int count = 0;
-        for (String w : words) {
-            if (w.equalsIgnoreCase(word))
-                count++;
-        }
-        return count;
+        return (int) Arrays.stream(words)
+                .filter(word::equalsIgnoreCase)
+                .count();
     }
 
     public static void generateReport() {

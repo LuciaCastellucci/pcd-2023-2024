@@ -117,15 +117,11 @@ class FinderVerticle extends AbstractVerticle {
 
         return promise.future();
     }
-
-    public int countOccurrences(String text) {
+    private int countOccurrences(String text) {
         String[] words = text.split("\\s+");
-        int count = 0;
-        for (String w : words) {
-            if (w.equalsIgnoreCase(word))
-                count++;
-        }
-        return count;
+        return (int) Arrays.stream(words)
+                .filter(word::equalsIgnoreCase)
+                .count();
     }
 
     private void log(String msg) {
