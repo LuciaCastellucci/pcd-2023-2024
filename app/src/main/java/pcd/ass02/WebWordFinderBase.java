@@ -1,10 +1,11 @@
 package pcd.ass02;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class WebWordFinderBase {
 
-    public static List<String> ignoredUrls =  new ArrayList<>();
+    public static Set<String> ignoredUrls = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public static Map<String, Integer> pageWordCounts = new HashMap<>();
 

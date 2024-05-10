@@ -8,16 +8,22 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebWordFinderEv {
+    public record FindResult(String url, int occurrences) implements Serializable { };
 
     public static void main(String[] args) {
         String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023";
         String word = "system";
         int depth = 2;
 
+        //find(url, word, depth);
+    }
+
+    public void find(String url, String word, int depth) {
         Vertx vertx = Vertx.vertx();
 
         vertx.deployVerticle(new ReportVerticle(), res -> {
@@ -33,7 +39,7 @@ class ReportVerticle extends AbstractVerticle {
 
         EventBus eb = vertx.eventBus();
         eb.consumer("report.wordCount.success", message -> {
-            FindResult findResult = (FindResult) message.body();
+            WebWordFinderEv.FindResult findResult = (WebWordFinderEv.FindResult) message.body();
             log("Occurency: " + findResult.occurrences() + " for url: " + findResult.url());
         });
 
@@ -70,7 +76,7 @@ class FinderVerticle extends AbstractVerticle {
         log("ScrapingVerticle:: Started.");
         var t0 = System.currentTimeMillis();
 
-        find(url, depth).onComplete(res -> {
+        computeFinding(url, depth).onComplete(res -> {
             log("ScrapingVerticle:: Scraping over");
             var t1 = System.currentTimeMillis();
             log("Time elapsed: " + (t1 - t0));
@@ -80,7 +86,7 @@ class FinderVerticle extends AbstractVerticle {
         log("ScrapingVerticle:: Ready.");
     }
 
-    private Future<Void> find(String url, int depth) {
+    private Future<Void> computeFinding(String url, int depth) {
         if (depth == 0 || visitedPages.contains(url)) {
             return Future.succeededFuture();
         }
@@ -95,11 +101,11 @@ class FinderVerticle extends AbstractVerticle {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.select("a[href]");
 
-                eventBus.publish("report.wordCount.success", new FindResult(url, countOccurrences(doc.text())));
+                eventBus.publish("report.wordCount.success", new WebWordFinderEv.FindResult(url, countOccurrences(doc.text())));
 
                 List<Future> futures = new ArrayList<>();
                 for (Element link : links) {
-                    futures.add(find(link.attr("abs:href"), depth - 1));
+                    futures.add(computeFinding(link.attr("abs:href"), depth - 1));
                 }
 
                 CompositeFuture.join(futures).onComplete(result -> {

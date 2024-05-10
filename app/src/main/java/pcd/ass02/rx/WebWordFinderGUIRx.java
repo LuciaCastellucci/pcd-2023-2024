@@ -70,8 +70,8 @@ public class WebWordFinderGUIRx extends JFrame {
                 new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        webAnalyzer = new WebWordFinderRx(word, depth, WebWordFinderGUIRx.this);
-                        webAnalyzer.analyze(url);
+                        webAnalyzer = new WebWordFinderRx().setGUI(WebWordFinderGUIRx.this);
+                        webAnalyzer.find(url, word, depth);
                         return null;
                     }
                 }.execute();
@@ -93,11 +93,11 @@ public class WebWordFinderGUIRx extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    public void print(WebWordFinderRx.AnalyzeResult result) {
+    public void print(WebWordFinderRx.FindResult result) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                tableModel.addRow(new Object[]{result.depth(), result.url(), result.occurences()});
+                tableModel.addRow(new Object[]{result.depth(), result.url(), result.occurrences()});
             }
         });
     }

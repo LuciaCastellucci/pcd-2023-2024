@@ -11,13 +11,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebWordFinderRx {
-    private String word;
-    private int depth;
-    private Set<String> visitedPages;
+    private Set<String> visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private WebWordFinderGUIRx gui = null;
 
-    public record AnalyzeResult (String url, int occurences, int depth) {
+    public record FindResult(String url, String word, int depth, int occurrences) {
     };
 
     public static void main(String[] args) {
@@ -26,51 +24,47 @@ public class WebWordFinderRx {
         String word = "system";
         int depth = 2;
 
-        WebWordFinderRx webAnalyzer = new WebWordFinderRx(word, depth);
-        webAnalyzer.analyze(url);
+        WebWordFinderRx webAnalyzer = new WebWordFinderRx();
+        webAnalyzer.find(url, word, depth);
 
         var t1 = System.currentTimeMillis();
         System.out.println("Time elapsed: " + (t1 - t0));
     }
 
-    public WebWordFinderRx(String word, int depth) {
-        this.word = word;
-        this.depth = depth;
-        this.visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    }
-
-    public WebWordFinderRx(String word, int depth, WebWordFinderGUIRx gui) {
-        this(word, depth);
+    public WebWordFinderRx setGUI(WebWordFinderGUIRx gui) {
         this.gui = gui;
+        return this;
     }
 
-    public void analyze(String url) {
+    public void find(String url, String word, int depth) {
         Observable.just(url)
-                .flatMap(this::processPage)
-                .subscribe(res -> log((AnalyzeResult) res), err -> log("Request ignored due to IOException, url: " + url));
+                .flatMap(page -> computeFinding(url, word, depth))
+                .subscribe(res -> log((FindResult) res), err -> log("Request ignored due to IOException, url: " + url + "\n" + err));
     }
 
-    private Observable<AnalyzeResult> processPage(String url) {
+    private Observable<FindResult> computeFinding(String url, String word, int depth) {
         return Observable.create(emitter -> {
             if (depth > 0 && !visitedPages.contains(url)) {
                 visitedPages.add(url);
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements links = doc.select("a[href]");
-                    int occurrences = countOccurrences(doc.text());
-                    emitter.onNext(new AnalyzeResult(url, occurrences, depth));
+                    int occurrences = countOccurrences(doc.text(), word);
+                    emitter.onNext(new FindResult(url, word, depth, occurrences));
                     for (Element link : links) {
-                        new WebWordFinderRx(word, depth - 1, gui).analyze(link.attr("abs:href"));
+                        new WebWordFinderRx().setGUI(gui).find(link.attr("abs:href"), word, depth - 1);
                     }
                 } catch (IOException e) {
+                    System.out.println(e.toString());
                     emitter.onError(e);
+
                 }
             }
             emitter.onComplete();
         });
     }
 
-    private int countOccurrences(String text) {
+    private int countOccurrences(String text, String word) {
         String[] words = text.split("\\s+");
         return (int) Arrays.stream(words)
                 .filter(word::equalsIgnoreCase)
@@ -81,8 +75,8 @@ public class WebWordFinderRx {
         System.out.println("[" + Thread.currentThread() + "] " + msg);
     }
 
-    private void log(AnalyzeResult result) {
-        System.out.println(result.occurences + " occurences of word '" + word + "' for url: " + result.url);
+    private void log(FindResult result) {
+        System.out.println(result.occurrences + " occurrences of word '" + result.word + "' for url: " + result.url);
         if (gui != null) {
             gui.print(result);
         }
