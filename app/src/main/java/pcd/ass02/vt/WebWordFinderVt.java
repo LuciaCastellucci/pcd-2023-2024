@@ -33,10 +33,9 @@ public class WebWordFinderVt {
     }
 
     private void computeFinding(String url, String word, int depth) {
-        if (depth == 0 || visitedPages.contains(url)) {
+        if (depth == 0 || !visitedPages.add(url)) {
             return;
         }
-        visitedPages.add(url);
         try {
             Document doc = Jsoup.connect(url).get();
 

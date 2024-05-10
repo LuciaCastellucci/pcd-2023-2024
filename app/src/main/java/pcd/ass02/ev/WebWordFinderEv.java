@@ -15,14 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebWordFinderEv {
     public record FindResult(String url, int occurrences) implements Serializable { };
 
-    public static void main(String[] args) {
-        String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023";
-        String word = "system";
-        int depth = 2;
-
-        //find(url, word, depth);
-    }
-
     public void find(String url, String word, int depth) {
         Vertx vertx = Vertx.vertx();
 
@@ -87,11 +79,9 @@ class FinderVerticle extends AbstractVerticle {
     }
 
     private Future<Void> computeFinding(String url, int depth) {
-        if (depth == 0 || visitedPages.contains(url)) {
+        if (depth == 0 || !visitedPages.add(url)) {
             return Future.succeededFuture();
         }
-
-        visitedPages.add(url);
 
         Promise<Void> promise = Promise.promise();
         EventBus eventBus = vertx.eventBus();
@@ -101,7 +91,10 @@ class FinderVerticle extends AbstractVerticle {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.select("a[href]");
 
-                eventBus.publish("report.wordCount.success", new WebWordFinderEv.FindResult(url, countOccurrences(doc.text())));
+                int occurrences = countOccurrences(doc.text());
+                if (occurrences > 0) {
+                    eventBus.publish("report.wordCount.success", new WebWordFinderEv.FindResult(url, occurrences));
+                }
 
                 List<Future> futures = new ArrayList<>();
                 for (Element link : links) {

@@ -1,4 +1,6 @@
-package pcd.ass02.rx;
+package pcd.ass02;
+
+import pcd.ass02.rx.WebWordFinderRx;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -7,27 +9,26 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class WebWordFinderGUIRx extends JFrame {
+public class GUI extends JFrame {
     private JTextField urlField;
     private JTextField wordField;
     private JTextField depthField;
     private JTable outputTable;
     private JButton analyzeButton;
     private JButton clearButton;
-    private WebWordFinderRx webAnalyzer;
     private DefaultTableModel tableModel;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new WebWordFinderGUIRx().setVisible(true);
+                new GUI().setVisible(true);
             }
         });
     }
 
 
-    public WebWordFinderGUIRx() {
+    public GUI() {
         setTitle("Web Word Finder");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,7 +71,7 @@ public class WebWordFinderGUIRx extends JFrame {
                 new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        webAnalyzer = new WebWordFinderRx().setGUI(WebWordFinderGUIRx.this);
+                        var webAnalyzer = new WebWordFinderRx().set(GUI.this);
                         webAnalyzer.find(url, word, depth);
                         return null;
                     }
@@ -93,7 +94,7 @@ public class WebWordFinderGUIRx extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    public void print(WebWordFinderRx.FindResult result) {
+    public void print(FindResult result) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

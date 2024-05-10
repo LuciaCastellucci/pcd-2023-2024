@@ -5,6 +5,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import pcd.ass02.FindResult;
+import pcd.ass02.GUI;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,25 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebWordFinderRx {
     private Set<String> visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private WebWordFinderGUIRx gui = null;
+    private GUI gui = null;
 
-    public record FindResult(String url, String word, int depth, int occurrences) {
-    };
-
-    public static void main(String[] args) {
-        var t0 = System.currentTimeMillis();
-        String url = "https://corsi.unibo.it/magistrale/IngegneriaScienzeInformatiche/insegnamenti/piano/2023/8614/000/000/2023";
-        String word = "system";
-        int depth = 2;
-
-        WebWordFinderRx webAnalyzer = new WebWordFinderRx();
-        webAnalyzer.find(url, word, depth);
-
-        var t1 = System.currentTimeMillis();
-        System.out.println("Time elapsed: " + (t1 - t0));
-    }
-
-    public WebWordFinderRx setGUI(WebWordFinderGUIRx gui) {
+    public WebWordFinderRx set(GUI gui) {
         this.gui = gui;
         return this;
     }
@@ -44,15 +30,16 @@ public class WebWordFinderRx {
 
     private Observable<FindResult> computeFinding(String url, String word, int depth) {
         return Observable.create(emitter -> {
-            if (depth > 0 && !visitedPages.contains(url)) {
-                visitedPages.add(url);
+            if (depth > 0 && visitedPages.add(url)) {
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements links = doc.select("a[href]");
                     int occurrences = countOccurrences(doc.text(), word);
-                    emitter.onNext(new FindResult(url, word, depth, occurrences));
+                    if (occurrences > 0) {
+                        emitter.onNext(new FindResult(url, word, depth, occurrences));
+                    }
                     for (Element link : links) {
-                        new WebWordFinderRx().setGUI(gui).find(link.attr("abs:href"), word, depth - 1);
+                        find(link.attr("abs:href"), word, depth - 1);
                     }
                 } catch (IOException e) {
                     System.out.println(e.toString());
@@ -76,7 +63,7 @@ public class WebWordFinderRx {
     }
 
     private void log(FindResult result) {
-        System.out.println(result.occurrences + " occurrences of word '" + result.word + "' for url: " + result.url);
+        System.out.println(result.occurrences() + " occurrences of word '" + result.word() + "' for url: " + result.url());
         if (gui != null) {
             gui.print(result);
         }
