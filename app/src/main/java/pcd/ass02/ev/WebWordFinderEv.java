@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import pcd.ass02.FindResult;
+import pcd.ass02.GUI;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -13,25 +15,43 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebWordFinderEv {
-    public record FindResult(String url, int occurrences) implements Serializable { };
+
+    private GUI gui;
+
+    public WebWordFinderEv() {
+        this.gui = null;
+    }
+    public WebWordFinderEv(GUI gui) {
+        this.gui = gui;
+    }
 
     public void find(String url, String word, int depth) {
         Vertx vertx = Vertx.vertx();
 
-        vertx.deployVerticle(new ReportVerticle(), res -> {
+        vertx.deployVerticle(new ReportVerticle(gui), res -> {
             vertx.deployVerticle(new FinderVerticle(url, word, depth));
         });
     }
 }
 
 class ReportVerticle extends AbstractVerticle {
+
+    private GUI gui;
+
+    public ReportVerticle(GUI gui) {
+        this.gui = gui;
+    }
+
     @Override
     public void start(Promise<Void> startPromise) {
         log("ReportVerticle:: Started.");
 
         EventBus eb = vertx.eventBus();
         eb.consumer("report.wordCount.success", message -> {
-            WebWordFinderEv.FindResult findResult = (WebWordFinderEv.FindResult) message.body();
+            FindResult findResult = (FindResult) message.body();
+            if (gui != null) {
+                gui.print(findResult);
+            }
             log("Occurency: " + findResult.occurrences() + " for url: " + findResult.url());
         });
 
@@ -93,7 +113,7 @@ class FinderVerticle extends AbstractVerticle {
 
                 int occurrences = countOccurrences(doc.text());
                 if (occurrences > 0) {
-                    eventBus.publish("report.wordCount.success", new WebWordFinderEv.FindResult(url, occurrences));
+                    eventBus.publish("report.wordCount.success", new FindResult(url, word, depth, occurrences));
                 }
 
                 List<Future> futures = new ArrayList<>();

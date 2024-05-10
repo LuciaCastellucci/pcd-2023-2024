@@ -15,11 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebWordFinderRx {
     private Set<String> visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private GUI gui = null;
+    private GUI gui;
 
-    public WebWordFinderRx set(GUI gui) {
+    public WebWordFinderRx() {
+        this.gui = null;
+    }
+    public WebWordFinderRx(GUI gui) {
         this.gui = gui;
-        return this;
     }
 
     public void find(String url, String word, int depth) {

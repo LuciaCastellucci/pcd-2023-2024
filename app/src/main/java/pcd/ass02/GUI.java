@@ -1,6 +1,8 @@
 package pcd.ass02;
 
+import pcd.ass02.ev.WebWordFinderEv;
 import pcd.ass02.rx.WebWordFinderRx;
+import pcd.ass02.vt.WebWordFinderVt;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -71,7 +73,9 @@ public class GUI extends JFrame {
                 new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        var webAnalyzer = new WebWordFinderRx().set(GUI.this);
+                        var webAnalyzer = new WebWordFinderRx(GUI.this);
+                        // var webAnalyzer = new WebWordFinderVt(GUI.this);
+                        // var webAnalyzer = new WebWordFinderEv(GUI.this);
                         webAnalyzer.find(url, word, depth);
                         return null;
                     }
