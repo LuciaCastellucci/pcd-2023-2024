@@ -33,8 +33,8 @@ class ReportVerticle extends AbstractVerticle {
 
         EventBus eb = vertx.eventBus();
         eb.consumer("report.wordCount.success", message -> {
-            ScrapeResult scrapeResult = (ScrapeResult) message.body();
-            log("Occurency: " + scrapeResult.occurrences() + " for url: " + scrapeResult.url());
+            FindResult findResult = (FindResult) message.body();
+            log("Occurency: " + findResult.occurrences() + " for url: " + findResult.url());
         });
 
         eb.consumer("report.wordCount.failure", message -> {
@@ -95,7 +95,7 @@ class FinderVerticle extends AbstractVerticle {
                 Document doc = Jsoup.connect(url).get();
                 Elements links = doc.select("a[href]");
 
-                eventBus.publish("report.wordCount.success", new ScrapeResult(url, countOccurrences(doc.text())));
+                eventBus.publish("report.wordCount.success", new FindResult(url, countOccurrences(doc.text())));
 
                 List<Future> futures = new ArrayList<>();
                 for (Element link : links) {
