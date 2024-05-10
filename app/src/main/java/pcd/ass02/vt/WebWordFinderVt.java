@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import pcd.ass02.FindResult;
+import pcd.ass02.Flag;
 import pcd.ass02.GUI;
 
 import java.io.IOException;
@@ -24,11 +25,14 @@ public class WebWordFinderVt {
     private static ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private GUI gui;
 
+    private Flag stopFlag;
+
     public WebWordFinderVt() {
         this.gui = null;
     }
-    public WebWordFinderVt(GUI gui) {
+    public WebWordFinderVt(GUI gui, Flag stopFlag) {
         this.gui = gui;
+        this.stopFlag = stopFlag;
     }
 
     public void find(String url, String word, int depth) {
@@ -43,7 +47,7 @@ public class WebWordFinderVt {
     }
 
     private void computeFinding(String url, String word, int depth) {
-        if (depth == 0 || !visitedPages.add(url)) {
+        if (!stopFlag.isSet() || depth == 0 || !visitedPages.add(url)) {
             return;
         }
         try {

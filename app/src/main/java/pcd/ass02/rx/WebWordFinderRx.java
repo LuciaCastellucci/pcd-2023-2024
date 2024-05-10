@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import pcd.ass02.FindResult;
+import pcd.ass02.Flag;
 import pcd.ass02.GUI;
 
 import java.io.IOException;
@@ -17,11 +18,14 @@ public class WebWordFinderRx {
 
     private GUI gui;
 
+    private Flag stopFlag;
+
     public WebWordFinderRx() {
         this.gui = null;
     }
-    public WebWordFinderRx(GUI gui) {
+    public WebWordFinderRx(GUI gui, Flag stopFlag) {
         this.gui = gui;
+        this.stopFlag = stopFlag;
     }
 
     public void find(String url, String word, int depth) {
@@ -32,7 +36,7 @@ public class WebWordFinderRx {
 
     private Observable<FindResult> computeFinding(String url, String word, int depth) {
         return Observable.create(emitter -> {
-            if (depth > 0 && visitedPages.add(url)) {
+            if (!stopFlag.isSet() && depth > 0 && visitedPages.add(url)) {
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements links = doc.select("a[href]");

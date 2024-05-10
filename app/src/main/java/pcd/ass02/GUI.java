@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.ref.Cleaner;
 
 public class GUI extends JFrame {
     private JTextField urlField;
@@ -18,7 +19,10 @@ public class GUI extends JFrame {
     private JTable outputTable;
     private JButton analyzeButton;
     private JButton clearButton;
+    private JButton stopButton;
     private DefaultTableModel tableModel;
+
+    private Flag stopFlag;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -28,7 +32,6 @@ public class GUI extends JFrame {
             }
         });
     }
-
 
     public GUI() {
         setTitle("Web Word Finder");
@@ -63,6 +66,8 @@ public class GUI extends JFrame {
         add(new JScrollPane(outputTable), BorderLayout.CENTER);
 
         analyzeButton = new JButton("Analyze");
+        analyzeButton.setBackground(Color.GREEN);
+        analyzeButton.setForeground(Color.WHITE);
         analyzeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,7 +78,8 @@ public class GUI extends JFrame {
                 new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        var webAnalyzer = new WebWordFinderRx(GUI.this);
+                        stopFlag = new Flag();
+                        var webAnalyzer = new WebWordFinderRx(GUI.this, stopFlag);
                         // var webAnalyzer = new WebWordFinderVt(GUI.this);
                         // var webAnalyzer = new WebWordFinderEv(GUI.this);
                         webAnalyzer.find(url, word, depth);
@@ -87,6 +93,8 @@ public class GUI extends JFrame {
         buttonPanel.add(analyzeButton);
 
         clearButton = new JButton("Clear");
+        clearButton.setBackground(Color.ORANGE);
+        clearButton.setForeground(Color.WHITE);
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,6 +102,17 @@ public class GUI extends JFrame {
             }
         });
         buttonPanel.add(clearButton);
+
+        stopButton = new JButton("Stop");
+        stopButton.setBackground(Color.RED);
+        stopButton.setForeground(Color.WHITE);
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopFlag.set();
+            }
+        });
+        buttonPanel.add(stopButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
     }

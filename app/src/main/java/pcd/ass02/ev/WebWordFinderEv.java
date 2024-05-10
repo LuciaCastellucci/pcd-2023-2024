@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import pcd.ass02.FindResult;
+import pcd.ass02.Flag;
 import pcd.ass02.GUI;
 
 import java.io.IOException;
@@ -18,18 +19,21 @@ public class WebWordFinderEv {
 
     private GUI gui;
 
+    private Flag stopFlag;
+
     public WebWordFinderEv() {
         this.gui = null;
     }
-    public WebWordFinderEv(GUI gui) {
+    public WebWordFinderEv(GUI gui, Flag stopFlag) {
         this.gui = gui;
+        this.stopFlag = stopFlag;
     }
 
     public void find(String url, String word, int depth) {
         Vertx vertx = Vertx.vertx();
 
         vertx.deployVerticle(new ReportVerticle(gui), res -> {
-            vertx.deployVerticle(new FinderVerticle(url, word, depth));
+            vertx.deployVerticle(new FinderVerticle(url, word, depth, stopFlag));
         });
     }
 }
@@ -77,10 +81,13 @@ class FinderVerticle extends AbstractVerticle {
     private String word;
     private int depth;
 
-    public FinderVerticle(String url, String word, int depth) {
+    private Flag stopFlag;
+
+    public FinderVerticle(String url, String word, int depth, Flag stopFlag) {
         this.url = url;
         this.word = word;
         this.depth = depth;
+        this.stopFlag = stopFlag;
     }
 
     @Override
@@ -99,7 +106,7 @@ class FinderVerticle extends AbstractVerticle {
     }
 
     private Future<Void> computeFinding(String url, int depth) {
-        if (depth == 0 || !visitedPages.add(url)) {
+        if (stopFlag.isSet() || depth == 0 || !visitedPages.add(url)) {
             return Future.succeededFuture();
         }
 
