@@ -11,9 +11,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebWordFinderRx {
-    private final String word;
-    private final int depth;
-    private final Set<String> visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private String word;
+    private int depth;
+    private Set<String> visitedPages;
+
+    private WebWordFinderGUIRx gui = null;
+
+    public record AnalyzeResult (String url, int occurences, int depth) {
+    };
 
     public static void main(String[] args) {
         var t0 = System.currentTimeMillis();
@@ -31,25 +36,31 @@ public class WebWordFinderRx {
     public WebWordFinderRx(String word, int depth) {
         this.word = word;
         this.depth = depth;
+        this.visitedPages = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    }
+
+    public WebWordFinderRx(String word, int depth, WebWordFinderGUIRx gui) {
+        this(word, depth);
+        this.gui = gui;
     }
 
     public void analyze(String url) {
         Observable.just(url)
                 .flatMap(this::processPage)
-                .subscribe(this::log, err -> log("Request ignored due to IOException, url: " + url));
+                .subscribe(res -> log((AnalyzeResult) res), err -> log("Request ignored due to IOException, url: " + url));
     }
 
-    private Observable<String> processPage(String url) {
+    private Observable<AnalyzeResult> processPage(String url) {
         return Observable.create(emitter -> {
             if (depth > 0 && !visitedPages.contains(url)) {
                 visitedPages.add(url);
                 try {
                     Document doc = Jsoup.connect(url).get();
                     Elements links = doc.select("a[href]");
-                    int count = countOccurrences(doc.text());
-                    emitter.onNext(count + " occurences of word '" + word + "' for url: " + url);
+                    int occurrences = countOccurrences(doc.text());
+                    emitter.onNext(new AnalyzeResult(url, occurrences, depth));
                     for (Element link : links) {
-                        new WebWordFinderRx(word, depth - 1).analyze(link.attr("abs:href"));
+                        new WebWordFinderRx(word, depth - 1, gui).analyze(link.attr("abs:href"));
                     }
                 } catch (IOException e) {
                     emitter.onError(e);
@@ -67,6 +78,13 @@ public class WebWordFinderRx {
     }
 
     private void log(String msg) {
-        System.out.println("["+Thread.currentThread()+"] " + msg);
+        System.out.println("[" + Thread.currentThread() + "] " + msg);
+    }
+
+    private void log(AnalyzeResult result) {
+        System.out.println(result.occurences + " occurences of word '" + word + "' for url: " + result.url);
+        if (gui != null) {
+            gui.print(result);
+        }
     }
 }
