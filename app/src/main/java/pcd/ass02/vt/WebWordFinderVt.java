@@ -29,6 +29,7 @@ public class WebWordFinderVt {
 
     public WebWordFinderVt() {
         this.gui = null;
+        this.stopFlag = new Flag();
     }
     public WebWordFinderVt(GUI gui, Flag stopFlag) {
         this.gui = gui;
@@ -47,7 +48,7 @@ public class WebWordFinderVt {
     }
 
     private void computeFinding(String url, String word, int depth) {
-        if (!stopFlag.isSet() || depth == 0 || !visitedPages.add(url)) {
+        if (stopFlag.isSet() || depth == 0 || !visitedPages.add(url)) {
             return;
         }
         try {
@@ -82,7 +83,7 @@ public class WebWordFinderVt {
     public static void generateReport() {
         System.out.println("Report:");
         for (Map.Entry<String, Integer> entry : pageWordCounts.entrySet()) {
-            System.out.println("URL: " + entry.getKey() + ", Occurrences: " + entry.getValue());
+            System.out.println(entry.getValue() + " occurrences for URL: " + entry.getKey());
         }
         System.out.println("Ignored URLs because of IOException:");
         for (String url : ignoredUrls) {

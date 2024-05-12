@@ -10,7 +10,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.ref.Cleaner;
 
 public class GUI extends JFrame {
     private JTextField urlField;
@@ -80,8 +79,8 @@ public class GUI extends JFrame {
                     protected Void doInBackground() throws Exception {
                         stopFlag = new Flag();
                         var webAnalyzer = new WebWordFinderRx(GUI.this, stopFlag);
-                        // var webAnalyzer = new WebWordFinderVt(GUI.this);
-                        // var webAnalyzer = new WebWordFinderEv(GUI.this);
+                        // var webAnalyzer = new WebWordFinderVt(GUI.this, stopFlag);
+                        // var webAnalyzer = new WebWordFinderEv(GUI.this, stopFlag);
                         webAnalyzer.find(url, word, depth);
                         return null;
                     }

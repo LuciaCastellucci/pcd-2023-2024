@@ -11,7 +11,6 @@ import pcd.ass02.Flag;
 import pcd.ass02.GUI;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +22,7 @@ public class WebWordFinderEv {
 
     public WebWordFinderEv() {
         this.gui = null;
+        this.stopFlag = new Flag();
     }
     public WebWordFinderEv(GUI gui, Flag stopFlag) {
         this.gui = gui;
@@ -56,7 +56,7 @@ class ReportVerticle extends AbstractVerticle {
             if (gui != null) {
                 gui.print(findResult);
             }
-            log("Occurency: " + findResult.occurrences() + " for url: " + findResult.url());
+            log(findResult.occurrences() + " occurrences for URL: " + findResult.url());
         });
 
         eb.consumer("report.wordCount.failure", message -> {
@@ -128,6 +128,9 @@ class FinderVerticle extends AbstractVerticle {
                     futures.add(computeFinding(link.attr("abs:href"), depth - 1));
                 }
 
+
+                //Per verificare le performance serve, altrimenti non serve
+                /*
                 CompositeFuture.join(futures).onComplete(result -> {
                     if (result.succeeded()) {
                         promise2.complete();
@@ -135,6 +138,8 @@ class FinderVerticle extends AbstractVerticle {
                         promise2.fail(result.cause());
                     }
                 });
+                 */
+
             } catch (IOException e) {
                 eventBus.publish("report.wordCount.failure", url);
                 promise2.complete();
